@@ -21,7 +21,7 @@ import {
   TabPanel,
   Table,
 } from '@mui/joy'
-import WorkOrderBundleGenerator from './WorkOrderBundleGenerator'
+import AssetBundleGenerator from './AssetBundleGenerator'
 import {
   Schedule as ScheduleIcon,
   Group as GroupIcon,
@@ -274,7 +274,11 @@ const generateInsights = (bundles: BundleGroup[]): BundlingInsight[] => {
   return insights.sort((a, b) => b.impact - a.impact)
 }
 
-export default function MaintenanceBundling() {
+interface MaintenanceBundlingProps {
+  onNavigateToDispatch?: () => void
+}
+
+export default function MaintenanceBundling({ onNavigateToDispatch }: MaintenanceBundlingProps) {
   const [selectedBundles, setSelectedBundles] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState(0)
   const [bundleHistory, setBundleHistory] = useState<Array<{
@@ -337,22 +341,14 @@ export default function MaintenanceBundling() {
         <CardContent>
           <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value as number)}>
             <TabList>
-              <Tab>Work Order Generator</Tab>
+              <Tab>Asset Bundle Generator</Tab>
               <Tab>Current Bundle Opportunities</Tab>
               <Tab>Bundle History ({bundleHistory.length})</Tab>
             </TabList>
 
-            {/* Work Order Generator Tab */}
+            {/* Asset Bundle Generator Tab */}
             <TabPanel value={0}>
-              <Stack spacing={3}>
-                <Typography level="h4" sx={{ mb: 2 }}>
-                  Work Order Bundle Generator
-                </Typography>
-                <Typography level="body-sm" sx={{ mb: 3, color: 'text.secondary' }}>
-                  Enter Work Order IDs to generate intelligent bundles based on service area and service type combinations
-                </Typography>
-                <WorkOrderBundleGenerator />
-              </Stack>
+              <AssetBundleGenerator onBundleCreated={onNavigateToDispatch} />
             </TabPanel>
 
             {/* Current Bundles Tab */}

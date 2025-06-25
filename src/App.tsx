@@ -28,6 +28,7 @@ import MaintenanceBundling from './components/MaintenanceBundling'
 import MaintenanceAnalytics from './components/MaintenanceAnalytics'
 import PropertiesManagement from './components/PropertiesManagement'
 import MaintenanceManagement from './components/MaintenanceManagement'
+import BundleDispatch from './components/BundleDispatch'
 import {
   Dashboard as DashboardIcon,
   Build as BuildIcon,
@@ -149,6 +150,14 @@ function App() {
           >
             Bundling
           </Button>
+          <Button
+            variant={activeTab === 'bundle-dispatch' ? 'solid' : 'plain'}
+            startDecorator={<SendIcon />}
+            onClick={() => setActiveTab('bundle-dispatch')}
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Bundle Dispatch
+          </Button>
         </Stack>
 
         <Box sx={{ mt: 'auto', pt: 2 }}>
@@ -196,7 +205,9 @@ function App() {
               <EscalationDecisions />
             </Stack>
           ) : activeTab === 'bundling' ? (
-            <MaintenanceBundling />
+            <MaintenanceBundling onNavigateToDispatch={() => setActiveTab('bundle-dispatch')} />
+          ) : activeTab === 'bundle-dispatch' ? (
+            <BundleDispatch />
           ) : activeTab === 'analytics' ? (
             <MaintenanceAnalytics />
           ) : activeTab === 'properties' ? (
