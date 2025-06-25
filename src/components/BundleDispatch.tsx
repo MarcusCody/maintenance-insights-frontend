@@ -22,8 +22,6 @@ import {
 } from '@mui/joy'
 import {
   Send as SendIcon,
-  Schedule as ScheduleIcon,
-  LocationOn as LocationIcon,
   Build as BuildIcon,
   Refresh as RefreshIcon,
   CheckCircle as CheckCircleIcon,
@@ -38,6 +36,7 @@ interface BundleForDispatch {
     assetName: string
     assetType: string
     priority: string
+    specificLocation?: string
   }>
   serviceArea: string
   acceptedAt: string
@@ -45,6 +44,7 @@ interface BundleForDispatch {
   createdFrom: string
   originalWoid?: string
   dispatchedAt?: string
+  estimatedDuration?: string
 }
 
 export default function BundleDispatch() {
@@ -258,32 +258,28 @@ export default function BundleDispatch() {
                          border: '1px solid',
                          borderColor: 'primary.outlinedBorder'
                        }}>
-                         <Stack direction="row" spacing={3} alignItems="center">
-                           <Box>
-                             <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                               Work Orders
-                             </Typography>
-                             <Typography level="title-sm" fontWeight="bold">
-                               {bundle.workOrders.length}
-                             </Typography>
-                           </Box>
-                           <Box>
-                             <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                               Service Area
-                             </Typography>
-                             <Typography level="title-sm" fontWeight="bold">
-                               {bundle.serviceArea}
-                             </Typography>
-                           </Box>
-                           <Box>
-                             <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                               Status
-                             </Typography>
-                             <Typography level="title-sm" fontWeight="bold" sx={{ color: 'success.main' }}>
-                               Ready
-                             </Typography>
-                           </Box>
-                         </Stack>
+                         <Grid container spacing={2}>
+                           <Grid xs={6} sm={6}>
+                             <Box sx={{ textAlign: 'center' }}>
+                               <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                 Work Orders
+                               </Typography>
+                               <Typography level="title-sm" fontWeight="bold">
+                                 {bundle.workOrders.length}
+                               </Typography>
+                             </Box>
+                           </Grid>
+                           <Grid xs={6} sm={6}>
+                             <Box sx={{ textAlign: 'center' }}>
+                               <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                 Duration
+                               </Typography>
+                               <Typography level="title-sm" fontWeight="bold">
+                                 {bundle.estimatedDuration || '2-3 hours'}
+                               </Typography>
+                             </Box>
+                           </Grid>
+                         </Grid>
                        </Box>
 
                       {/* Work Orders List */}
@@ -321,26 +317,42 @@ export default function BundleDispatch() {
                          </List>
                       </Box>
 
-                      {/* Bundle Metadata */}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
-                        <Stack direction="row" spacing={2} alignItems="center">
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <ScheduleIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography level="body-xs">
-                              Created: {new Date(bundle.acceptedAt).toLocaleDateString()}
-                            </Typography>
-                          </Box>
-                          {bundle.originalWoid && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <LocationIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography level="body-xs">
-                                From: {bundle.originalWoid}
-                              </Typography>
-                            </Box>
-                          )}
-                        </Stack>
-                        
-                                                 <Button 
+                                             {/* Additional Bundle Details */}
+                       <Box sx={{ 
+                         bgcolor: 'neutral.softBg', 
+                         p: 1.5, 
+                         borderRadius: 'sm',
+                         border: '1px solid',
+                         borderColor: 'neutral.outlinedBorder'
+                       }}>
+                         <Stack spacing={0.5}>
+                           <Typography level="body-xs" sx={{ color: 'text.secondary', fontWeight: 'bold' }}>
+                             Bundle Details:
+                           </Typography>
+                           <Typography level="body-xs">
+                             📍 Service Area: {bundle.serviceArea}
+                           </Typography>
+                           <Typography level="body-xs">
+                             🗓️ Created: {new Date(bundle.acceptedAt).toLocaleDateString()}
+                           </Typography>
+                           {bundle.originalWoid && (
+                             <Typography level="body-xs">
+                               🔗 From WO: {bundle.originalWoid}
+                             </Typography>
+                           )}
+                           <Typography level="body-xs">
+                             ⏱️ Est. completion: {bundle.estimatedDuration || '2-3 hours'}
+                           </Typography>
+                         </Stack>
+                       </Box>
+
+                       {/* Bundle Actions */}
+                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
+                         <Chip size="sm" color="success" variant="soft">
+                           Ready for Dispatch
+                         </Chip>
+                         
+                         <Button 
                            size="sm" 
                            variant="solid"
                            color="primary"
@@ -349,7 +361,7 @@ export default function BundleDispatch() {
                          >
                            Dispatch
                          </Button>
-                      </Box>
+                       </Box>
                     </Stack>
                   </CardContent>
                                  </Card>

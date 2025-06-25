@@ -34,6 +34,9 @@ interface Asset {
   name: string
   type: string
   location: string
+  specificLocation: string
+  installationDate: string
+  assetAge: number
   lastServiced: string
   typicalServiceInterval: number
   confidenceLevel: 'High' | 'Medium' | 'Low'
@@ -57,6 +60,9 @@ const mockApiResponse: BundleOpportunity = {
       name: "HVAC Unit A",
       type: "HVAC",
       location: "Location A",
+      specificLocation: "Rooftop - North Side",
+      installationDate: "March 15, 2019",
+      assetAge: 5,
       lastServiced: "108 days ago",
       typicalServiceInterval: 120,
       confidenceLevel: "High",
@@ -69,6 +75,9 @@ const mockApiResponse: BundleOpportunity = {
       name: "Refrigerator Unit B",
       type: "Refrigeration",
       location: "Location A",
+      specificLocation: "Kitchen - Unit 204",
+      installationDate: "June 8, 2021",
+      assetAge: 3,
       lastServiced: "95 days ago",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
@@ -81,6 +90,9 @@ const mockApiResponse: BundleOpportunity = {
       name: "LED Lighting System",
       type: "Lighting",
       location: "Location A",
+      specificLocation: "Common Area - Lobby",
+      installationDate: "January 12, 2020",
+      assetAge: 4,
       lastServiced: "45 days ago",
       typicalServiceInterval: 180,
       confidenceLevel: "Medium",
@@ -93,6 +105,9 @@ const mockApiResponse: BundleOpportunity = {
       name: "Electrical Panel A",
       type: "Electrical",
       location: "Location A",
+      specificLocation: "Basement - Utility Room",
+      installationDate: "September 3, 2018",
+      assetAge: 6,
       lastServiced: "200 days ago",
       typicalServiceInterval: 365,
       confidenceLevel: "Medium",
@@ -105,6 +120,9 @@ const mockApiResponse: BundleOpportunity = {
       name: "Air Handler Unit C",
       type: "HVAC",
       location: "Location A",
+      specificLocation: "Mechanical Room - 2nd Floor",
+      installationDate: "November 20, 2020",
+      assetAge: 4,
       lastServiced: "75 days ago",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
@@ -234,13 +252,15 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
         assetId: asset.id,
         assetName: asset.name,
         assetType: asset.type,
-        priority: asset.priority
+        priority: asset.priority,
+        specificLocation: asset.specificLocation
       })),
       serviceArea: bundleData?.location,
       acceptedAt: new Date().toISOString(),
       status: 'ready_for_dispatch',
       createdFrom: 'asset_bundling',
-      originalWoid: workOrderId
+      originalWoid: workOrderId,
+      estimatedDuration: `${Math.ceil(selectedAssetsData.length * 1.5)} hours`
     }
 
     // Save to localStorage for bundle history and dispatch availability
@@ -510,6 +530,42 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                                 color={isOverdue ? 'danger' : 'warning'}
                                 sx={{ height: 6 }}
                               />
+                            </Box>
+
+                            {/* Asset Information */}
+                            <Box sx={{ 
+                              bgcolor: 'neutral.softBg', 
+                              p: 1.5, 
+                              borderRadius: 'sm',
+                              border: '1px solid',
+                              borderColor: 'neutral.outlinedBorder'
+                            }}>
+                              <Stack spacing={1}>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <strong>Location:</strong>
+                                  </Typography>
+                                  <Typography level="body-xs" fontWeight="medium">
+                                    {asset.specificLocation}
+                                  </Typography>
+                                </Stack>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <strong>Installed:</strong>
+                                  </Typography>
+                                  <Typography level="body-xs" fontWeight="medium">
+                                    {asset.installationDate}
+                                  </Typography>
+                                </Stack>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <strong>Age:</strong>
+                                  </Typography>
+                                  <Typography level="body-xs" fontWeight="medium">
+                                    {asset.assetAge} years
+                                  </Typography>
+                                </Stack>
+                              </Stack>
                             </Box>
 
                             {/* Asset Details */}
