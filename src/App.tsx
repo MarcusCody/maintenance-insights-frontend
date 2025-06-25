@@ -24,6 +24,10 @@ import {
 import MaintenanceRequestModal from './components/MaintenanceRequestModal'
 import DispatchRecommendations from './components/DispatchRecommendations'
 import EscalationDecisions from './components/EscalationDecisions'
+import MaintenanceBundling from './components/MaintenanceBundling'
+import MaintenanceAnalytics from './components/MaintenanceAnalytics'
+import PropertiesManagement from './components/PropertiesManagement'
+import MaintenanceManagement from './components/MaintenanceManagement'
 import {
   Dashboard as DashboardIcon,
   Build as BuildIcon,
@@ -38,6 +42,7 @@ import {
   AutoFixHigh as AutoFixHighIcon,
   Add as AddIcon,
   Send as SendIcon,
+  Group as GroupIcon,
 } from '@mui/icons-material'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
@@ -136,6 +141,14 @@ function App() {
           >
             Dispatch
           </Button>
+          <Button
+            variant={activeTab === 'bundling' ? 'solid' : 'plain'}
+            startDecorator={<GroupIcon />}
+            onClick={() => setActiveTab('bundling')}
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Bundling
+          </Button>
         </Stack>
 
         <Box sx={{ mt: 'auto', pt: 2 }}>
@@ -182,6 +195,14 @@ function App() {
               <DispatchRecommendations />
               <EscalationDecisions />
             </Stack>
+          ) : activeTab === 'bundling' ? (
+            <MaintenanceBundling />
+          ) : activeTab === 'analytics' ? (
+            <MaintenanceAnalytics />
+          ) : activeTab === 'properties' ? (
+            <PropertiesManagement />
+          ) : activeTab === 'maintenance' ? (
+            <MaintenanceManagement />
           ) : (
             <>
           {/* Key Metrics */}
