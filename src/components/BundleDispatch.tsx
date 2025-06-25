@@ -26,6 +26,7 @@ import {
   LocationOn as LocationIcon,
   Build as BuildIcon,
   Refresh as RefreshIcon,
+  CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material'
 
 interface BundleForDispatch {
@@ -55,6 +56,7 @@ export default function BundleDispatch() {
   const [availableBundles, setAvailableBundles] = useState<BundleForDispatch[]>([])
   const [dispatchedBundles, setDispatchedBundles] = useState<BundleForDispatch[]>([])
   const [activeTab, setActiveTab] = useState(0)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   // Load available bundles from localStorage
   const loadBundles = () => {
@@ -105,7 +107,13 @@ export default function BundleDispatch() {
 
     // Find the bundle name for the success message
     const dispatchedBundle = availableBundles.find(b => b.id === bundleId)
-    alert(`Successfully dispatched bundle: ${dispatchedBundle?.name || 'Unknown'}!`)
+    setSuccessMessage(`Successfully dispatched bundle: ${dispatchedBundle?.name || 'Unknown'}!`)
+    
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 5000)
+    
     loadBundles() // Refresh the list
   }
 
@@ -139,6 +147,51 @@ export default function BundleDispatch() {
           Refresh
         </Button>
       </Box>
+
+      {/* Success Snackbar */}
+      {successMessage && (
+        <Alert 
+          color="success" 
+          variant="soft"
+          sx={{ 
+            position: 'fixed',
+            top: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            minWidth: '400px',
+            maxWidth: '600px',
+            boxShadow: 'lg',
+            animation: 'slideDown 0.3s ease-out',
+            '@keyframes slideDown': {
+              from: { opacity: 0, transform: 'translateX(-50%) translateY(-20px)' },
+              to: { opacity: 1, transform: 'translateX(-50%) translateY(0)' }
+            },
+            bgcolor: 'success.softBg',
+            borderColor: 'success.outlinedBorder',
+            border: '1px solid'
+          }}
+          startDecorator={<CheckCircleIcon sx={{ color: 'success.main' }} />}
+          endDecorator={
+            <Button 
+              size="sm" 
+              variant="plain" 
+              color="neutral"
+              onClick={() => setSuccessMessage(null)}
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'neutral.softHoverBg' }
+              }}
+            >
+              ✕
+            </Button>
+          }
+        >
+          <Typography level="body-sm" fontWeight="medium" sx={{ color: 'text.primary' }}>
+            {successMessage}
+          </Typography>
+        </Alert>
+      )}
 
       {/* Tabs */}
       <Card>

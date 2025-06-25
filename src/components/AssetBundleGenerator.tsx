@@ -26,6 +26,7 @@ import {
   Lightbulb as LightbulbIcon,
   ElectricalServices as ElectricalIcon,
   Send as SendIcon,
+  CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material'
 
 interface Asset {
@@ -143,6 +144,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
   const [bundleData, setBundleData] = useState<BundleOpportunity | null>(null)
   const [selectedAssets, setSelectedAssets] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleGenerateBundle = async () => {
     if (!workOrderId.trim()) {
@@ -277,19 +279,23 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
     const updatedQueue = [...dispatchQueue, newBundle]
     localStorage.setItem('dispatchQueue', JSON.stringify(updatedQueue))
 
-    // Show success message and reset form
-    alert(`Bundle created successfully!\n\nBundle: ${newBundle.name}\nWork Orders: ${newBundle.workOrders.length}\nTotal Cost: $${totalSelectedCost}\nEstimated Savings: $${estimatedSavings}\n\nRedirecting to Bundle Dispatch...`)
+    // Show success message
+    setSuccessMessage(`Bundle created successfully! ${newBundle.name} with ${newBundle.workOrders.length} work orders. Redirecting to Bundle Dispatch...`)
     
-    // Reset the form
-    setWorkOrderId('')
-    setBundleData(null)
-    setSelectedAssets([])
-    setError(null)
-    
-    // Redirect to bundle dispatch page
-    if (onBundleCreated) {
-      onBundleCreated()
-    }
+    // Auto-hide success message and redirect after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage(null)
+      // Reset the form
+      setWorkOrderId('')
+      setBundleData(null)
+      setSelectedAssets([])
+      setError(null)
+      
+      // Redirect to bundle dispatch page
+      if (onBundleCreated) {
+        onBundleCreated()
+      }
+    }, 3000)
   }
 
   return (
@@ -304,6 +310,51 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
           Enter a Work Order ID to discover bundling opportunities with nearby assets
         </Typography>
       </Box>
+
+      {/* Success Snackbar */}
+      {successMessage && (
+        <Alert 
+          color="success" 
+          variant="soft"
+          sx={{ 
+            position: 'fixed',
+            top: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            minWidth: '400px',
+            maxWidth: '600px',
+            boxShadow: 'lg',
+            animation: 'slideDown 0.3s ease-out',
+            '@keyframes slideDown': {
+              from: { opacity: 0, transform: 'translateX(-50%) translateY(-20px)' },
+              to: { opacity: 1, transform: 'translateX(-50%) translateY(0)' }
+            },
+            bgcolor: 'success.softBg',
+            borderColor: 'success.outlinedBorder',
+            border: '1px solid'
+          }}
+          startDecorator={<CheckCircleIcon sx={{ color: 'success.main' }} />}
+          endDecorator={
+            <Button 
+              size="sm" 
+              variant="plain" 
+              color="neutral"
+              onClick={() => setSuccessMessage(null)}
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': { bgcolor: 'neutral.softHoverBg' }
+              }}
+            >
+              ✕
+            </Button>
+          }
+        >
+          <Typography level="body-sm" fontWeight="medium" sx={{ color: 'text.primary' }}>
+            {successMessage}
+          </Typography>
+        </Alert>
+      )}
 
       {/* Work Order Input */}
       <Card>
