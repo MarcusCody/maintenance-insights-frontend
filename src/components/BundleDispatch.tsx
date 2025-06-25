@@ -25,7 +25,6 @@ import {
   Schedule as ScheduleIcon,
   LocationOn as LocationIcon,
   Build as BuildIcon,
-  CheckCircle as CheckCircleIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material'
 
@@ -55,7 +54,6 @@ interface BundleForDispatch {
 export default function BundleDispatch() {
   const [availableBundles, setAvailableBundles] = useState<BundleForDispatch[]>([])
   const [dispatchedBundles, setDispatchedBundles] = useState<BundleForDispatch[]>([])
-  const [selectedBundles, setSelectedBundles] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState(0)
 
   // Load available bundles from localStorage
@@ -75,21 +73,11 @@ export default function BundleDispatch() {
     loadBundles()
   }, [])
 
-  const toggleBundleSelection = (bundleId: string) => {
-    setSelectedBundles(prev => 
-      prev.includes(bundleId) 
-        ? prev.filter(id => id !== bundleId)
-        : [...prev, bundleId]
-    )
-  }
-
-  const dispatchSelectedBundles = () => {
-    if (selectedBundles.length === 0) return
-
-    // Update status of selected bundles
+  const dispatchBundle = (bundleId: string) => {
+    // Update status of the specific bundle
     const dispatchQueue = JSON.parse(localStorage.getItem('dispatchQueue') || '[]')
     const updatedQueue = dispatchQueue.map((bundle: BundleForDispatch) => {
-      if (selectedBundles.includes(bundle.id)) {
+      if (bundle.id === bundleId) {
         return {
           ...bundle,
           status: 'dispatched',
@@ -104,7 +92,7 @@ export default function BundleDispatch() {
     // Also update bundle history
     const bundleHistory = JSON.parse(localStorage.getItem('bundleHistory') || '[]')
     const updatedHistory = bundleHistory.map((bundle: BundleForDispatch) => {
-      if (selectedBundles.includes(bundle.id)) {
+      if (bundle.id === bundleId) {
         return {
           ...bundle,
           status: 'dispatched',
@@ -115,8 +103,9 @@ export default function BundleDispatch() {
     })
     localStorage.setItem('bundleHistory', JSON.stringify(updatedHistory))
 
-    alert(`Successfully dispatched ${selectedBundles.length} bundle(s)!`)
-    setSelectedBundles([])
+    // Find the bundle name for the success message
+    const dispatchedBundle = availableBundles.find(b => b.id === bundleId)
+    alert(`Successfully dispatched bundle: ${dispatchedBundle?.name || 'Unknown'}!`)
     loadBundles() // Refresh the list
   }
 
@@ -128,10 +117,6 @@ export default function BundleDispatch() {
       default: return 'neutral'
     }
   }
-
-  const selectedBundleData = availableBundles.filter(bundle => selectedBundles.includes(bundle.id))
-  const totalSelectedCost = selectedBundleData.reduce((sum, bundle) => sum + bundle.totalCost, 0)
-  const totalSelectedSavings = selectedBundleData.reduce((sum, bundle) => sum + bundle.savings, 0)
 
   return (
     <Stack spacing={3}>
@@ -167,37 +152,7 @@ export default function BundleDispatch() {
             {/* Ready for Dispatch Tab */}
             <TabPanel value={0}>
 
-      {/* Selection Summary */}
-      {selectedBundles.length > 0 && (
-        <Card sx={{ bgcolor: 'primary.softBg' }}>
-          <CardContent>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography level="title-md" fontWeight="bold">
-                  {selectedBundles.length} Bundle{selectedBundles.length > 1 ? 's' : ''} Selected for Dispatch
-                </Typography>
-                <Typography level="body-sm">
-                  Total Cost: ${totalSelectedCost.toFixed(0)} • 
-                  Total Savings: ${totalSelectedSavings.toFixed(0)} • 
-                  Work Orders: {selectedBundleData.reduce((sum, bundle) => sum + bundle.workOrders.length, 0)}
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={2}>
-                <Button variant="outlined" onClick={() => setSelectedBundles([])}>
-                  Clear Selection
-                </Button>
-                <Button 
-                  variant="solid" 
-                  startDecorator={<SendIcon />}
-                  onClick={dispatchSelectedBundles}
-                >
-                  Dispatch Selected ({selectedBundles.length})
-                </Button>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      )}
+      
 
       {/* Available Bundles */}
       {availableBundles.length === 0 ? (
@@ -207,23 +162,21 @@ export default function BundleDispatch() {
           </Typography>
         </Alert>
       ) : (
-        <Grid container spacing={3}>
-          {availableBundles.map((bundle) => {
-            const isSelected = selectedBundles.includes(bundle.id)
-            
-            return (
-              <Grid xs={12} lg={6} key={bundle.id}>
-                <Card 
-                  sx={{ 
-                    height: '100%',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    border: isSelected ? '2px solid' : '1px solid',
-                    borderColor: isSelected ? 'primary.main' : 'divider',
-                    bgcolor: isSelected ? 'primary.softBg' : 'background.surface'
-                  }}
-                  onClick={() => toggleBundleSelection(bundle.id)}
-                >
+                 <Grid container spacing={3}>
+           {availableBundles.map((bundle) => (
+             <Grid xs={12} lg={6} key={bundle.id}>
+               <Card 
+                 sx={{ 
+                   height: '100%',
+                   transition: 'all 0.2s ease',
+                   border: '1px solid',
+                   borderColor: 'divider',
+                   '&:hover': {
+                     borderColor: 'primary.main',
+                     boxShadow: 'sm'
+                   }
+                 }}
+               >
                   <CardContent>
                     <Stack spacing={2}>
                       {/* Bundle Header */}
@@ -244,9 +197,9 @@ export default function BundleDispatch() {
                             </Chip>
                           </Stack>
                         </Box>
-                        <Avatar sx={{ bgcolor: isSelected ? 'success.main' : 'neutral.main' }}>
-                          {isSelected ? <CheckCircleIcon /> : <BuildIcon />}
-                        </Avatar>
+                                                 <Avatar sx={{ bgcolor: 'success.main' }}>
+                           <BuildIcon />
+                         </Avatar>
                       </Box>
 
                       {/* Bundle Info */}
@@ -339,21 +292,22 @@ export default function BundleDispatch() {
                           )}
                         </Stack>
                         
-                        <Button 
-                          size="sm" 
-                          variant={isSelected ? 'solid' : 'outlined'}
-                          color={isSelected ? 'success' : 'primary'}
-                        >
-                          {isSelected ? 'Selected' : 'Select for Dispatch'}
-                        </Button>
+                                                 <Button 
+                           size="sm" 
+                           variant="solid"
+                           color="primary"
+                           startDecorator={<SendIcon />}
+                           onClick={() => dispatchBundle(bundle.id)}
+                         >
+                           Dispatch
+                         </Button>
                       </Box>
                     </Stack>
                   </CardContent>
-                </Card>
-              </Grid>
-            )
-          })}
-        </Grid>
+                                 </Card>
+               </Grid>
+             ))}
+         </Grid>
       )}
 
       
