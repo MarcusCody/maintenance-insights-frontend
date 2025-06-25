@@ -290,29 +290,34 @@ export default function BundleDispatch() {
                         <Typography level="body-sm" fontWeight="medium" sx={{ mb: 1 }}>
                           Work Orders in Bundle:
                         </Typography>
-                        <List size="sm">
-                          {bundle.workOrders.map((wo, idx) => (
-                            <ListItem key={wo.id}>
-                              <ListItemDecorator>
-                                <Chip 
-                                  size="sm" 
-                                  color={getPriorityColor(wo.priority)}
-                                  variant="soft"
-                                >
-                                  {idx + 1}
-                                </Chip>
-                              </ListItemDecorator>
-                              <ListItemContent>
-                                <Typography level="body-xs" fontWeight="medium">
-                                  {wo.assetName} ({wo.assetType})
-                                </Typography>
-                                <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                                  ${wo.estimatedCost} • {wo.estimatedDuration}h • {wo.priority} priority
-                                </Typography>
-                              </ListItemContent>
-                            </ListItem>
-                          ))}
-                        </List>
+                                                 <List size="sm">
+                           {bundle.workOrders.map((wo, idx) => (
+                             <ListItem key={wo.id}>
+                               <ListItemDecorator>
+                                 <Chip 
+                                   size="sm" 
+                                   color={getPriorityColor(wo.priority)}
+                                   variant="soft"
+                                 >
+                                   {idx + 1}
+                                 </Chip>
+                               </ListItemDecorator>
+                               <ListItemContent>
+                                 <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                                   <Typography level="body-xs" fontWeight="medium">
+                                     {wo.assetName} ({wo.assetType})
+                                   </Typography>
+                                   <Chip size="sm" variant="outlined" color="neutral">
+                                     {wo.id}
+                                   </Chip>
+                                 </Stack>
+                                 <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                   ${wo.estimatedCost} • {wo.estimatedDuration}h • {wo.priority} priority
+                                 </Typography>
+                               </ListItemContent>
+                             </ListItem>
+                           ))}
+                         </List>
                       </Box>
 
                       {/* Bundle Metadata */}
@@ -351,74 +356,7 @@ export default function BundleDispatch() {
         </Grid>
       )}
 
-      {/* Summary Table */}
-      {availableBundles.length > 0 && (
-        <Card>
-          <CardContent>
-            <Typography level="h4" sx={{ mb: 2 }}>
-              Dispatch Summary
-            </Typography>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Bundle</th>
-                  <th>Service Area</th>
-                  <th>Work Orders</th>
-                  <th>Total Cost</th>
-                  <th>Savings</th>
-                  <th>Created</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {availableBundles.map((bundle) => (
-                  <tr key={bundle.id}>
-                    <td>
-                      <Typography level="body-sm" fontWeight="medium">
-                        {bundle.name}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography level="body-sm">
-                        {bundle.serviceArea}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography level="body-sm">
-                        {bundle.workOrders.length}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography level="body-sm">
-                        ${bundle.totalCost.toFixed(0)}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Chip size="sm" color="success" variant="soft">
-                        ${bundle.savings.toFixed(0)}
-                      </Chip>
-                    </td>
-                    <td>
-                      <Typography level="body-sm">
-                        {new Date(bundle.acceptedAt).toLocaleDateString()}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Chip 
-                        size="sm" 
-                        color={selectedBundles.includes(bundle.id) ? 'primary' : 'success'} 
-                        variant="soft"
-                      >
-                        {selectedBundles.includes(bundle.id) ? 'Selected' : 'Ready'}
-                      </Chip>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </CardContent>
-        </Card>
-                   )}
+      
            </TabPanel>
 
            {/* Dispatched Bundles Tab */}

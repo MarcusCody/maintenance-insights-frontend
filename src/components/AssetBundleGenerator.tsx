@@ -237,12 +237,19 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
       return
     }
 
+    // Generate realistic work order numbers
+    const generateWONumber = () => {
+      const prefix = 'B'
+      const randomNumber = Math.floor(Math.random() * (9999999 - 9000000) + 9000000)
+      return `${prefix}${randomNumber}`
+    }
+
     // Create bundle object
     const newBundle = {
       id: `bundle-${Date.now()}`,
       name: `${bundleData?.location} Asset Bundle`,
       workOrders: selectedAssetsData.map(asset => ({
-        id: `WO-${asset.id}-${Date.now()}`,
+        id: generateWONumber(),
         assetId: asset.id,
         assetName: asset.name,
         assetType: asset.type,
