@@ -19,7 +19,6 @@ import {
   TabList,
   Tab,
   TabPanel,
-  Table,
 } from '@mui/joy'
 import WorkOrderBundleGenerator from './WorkOrderBundleGenerator'
 import {
@@ -74,176 +73,7 @@ interface BundlingInsight {
   potentialSavings?: number
 }
 
-// Mock data for maintenance requests
-const mockMaintenanceRequests: MaintenanceRequest[] = [
-  {
-    id: 'REQ-001',
-    property: 'Sunset Apartments #204',
-    propertyId: 'PROP-001',
-    issue: 'Kitchen faucet leaking',
-    category: 'plumbing',
-    priority: 'medium',
-    location: 'Unit 204, Kitchen',
-    coordinates: { lat: 40.7128, lng: -74.0060 },
-    description: 'Kitchen faucet has persistent drip',
-    createdAt: '2024-01-15T10:30:00Z',
-    estimatedDuration: 1.5,
-    estimatedCost: 120,
-    urgencyScore: 65,
-    tenantImpact: 'medium'
-  },
-  {
-    id: 'REQ-002',
-    property: 'Sunset Apartments #206',
-    propertyId: 'PROP-001',
-    issue: 'Bathroom sink clogged',
-    category: 'plumbing',
-    priority: 'medium',
-    location: 'Unit 206, Bathroom',
-    coordinates: { lat: 40.7130, lng: -74.0062 },
-    description: 'Bathroom sink draining slowly',
-    createdAt: '2024-01-15T11:15:00Z',
-    estimatedDuration: 1,
-    estimatedCost: 85,
-    urgencyScore: 55,
-    tenantImpact: 'medium'
-  },
-  {
-    id: 'REQ-003',
-    property: 'Sunset Apartments #208',
-    propertyId: 'PROP-001',
-    issue: 'Toilet running continuously',
-    category: 'plumbing',
-    priority: 'high',
-    location: 'Unit 208, Bathroom',
-    coordinates: { lat: 40.7132, lng: -74.0064 },
-    description: 'Toilet won\'t stop running',
-    createdAt: '2024-01-15T09:45:00Z',
-    estimatedDuration: 0.5,
-    estimatedCost: 65,
-    urgencyScore: 75,
-    tenantImpact: 'high'
-  },
-  {
-    id: 'REQ-004',
-    property: 'Oak Street Complex #12',
-    propertyId: 'PROP-002',
-    issue: 'Light fixture not working',
-    category: 'electrical',
-    priority: 'low',
-    location: 'Unit 12, Living Room',
-    coordinates: { lat: 40.7200, lng: -74.0100 },
-    description: 'Ceiling light fixture not turning on',
-    createdAt: '2024-01-15T14:20:00Z',
-    estimatedDuration: 1,
-    estimatedCost: 95,
-    urgencyScore: 35,
-    tenantImpact: 'low'
-  },
-  {
-    id: 'REQ-005',
-    property: 'Oak Street Complex #15',
-    propertyId: 'PROP-002',
-    issue: 'Outlet not working',
-    category: 'electrical',
-    priority: 'medium',
-    location: 'Unit 15, Kitchen',
-    coordinates: { lat: 40.7202, lng: -74.0102 },
-    description: 'Kitchen outlet has no power',
-    createdAt: '2024-01-15T13:30:00Z',
-    estimatedDuration: 0.5,
-    estimatedCost: 75,
-    urgencyScore: 60,
-    tenantImpact: 'medium'
-  },
-  {
-    id: 'REQ-006',
-    property: 'Downtown Plaza #5',
-    propertyId: 'PROP-003',
-    issue: 'AC unit making noise',
-    category: 'hvac',
-    priority: 'high',
-    location: 'Unit 5, Living Room',
-    coordinates: { lat: 40.7589, lng: -73.9851 },
-    description: 'AC unit making loud grinding noise',
-    createdAt: '2024-01-15T08:15:00Z',
-    estimatedDuration: 2,
-    estimatedCost: 180,
-    urgencyScore: 80,
-    tenantImpact: 'high'
-  }
-]
 
-// AI-powered bundling algorithm
-const generateBundles = (requests: MaintenanceRequest[]): BundleGroup[] => {
-  const bundles: BundleGroup[] = []
-  
-  // Group by category and proximity
-  const categoryGroups = requests.reduce((groups, request) => {
-    const key = request.category
-    if (!groups[key]) groups[key] = []
-    groups[key].push(request)
-    return groups
-  }, {} as Record<string, MaintenanceRequest[]>)
-
-  Object.entries(categoryGroups).forEach(([category, categoryRequests]) => {
-    // Further group by property proximity
-    const proximityGroups = categoryRequests.reduce((groups, request) => {
-      const existingGroup = groups.find(group => 
-        group.some(r => r.propertyId === request.propertyId)
-      )
-      
-      if (existingGroup) {
-        existingGroup.push(request)
-      } else {
-        groups.push([request])
-      }
-      return groups
-    }, [] as MaintenanceRequest[][])
-
-    proximityGroups.forEach((group, index) => {
-      if (group.length > 1) {
-        const totalCost = group.reduce((sum, req) => sum + req.estimatedCost, 0)
-        const totalDuration = group.reduce((sum, req) => sum + req.estimatedDuration, 0)
-        
-        // Calculate savings
-        const travelSavings = (group.length - 1) * 45
-        const bulkDiscount = totalCost * 0.08
-        const totalSavings = travelSavings + bulkDiscount
-        const savingsPercentage = (totalSavings / totalCost) * 100
-
-        const highestPriority = group.reduce((highest, req) => 
-          req.priority === 'emergency' ? 'high' : 
-          req.priority === 'high' || highest === 'high' ? 'high' :
-          req.priority === 'medium' || highest === 'medium' ? 'medium' : 'low'
-        , 'low' as 'low' | 'medium' | 'high')
-
-        bundles.push({
-          id: `BUNDLE-${category.toUpperCase()}-${index + 1}`,
-          name: `${category.charAt(0).toUpperCase() + category.slice(1)} Bundle - ${group[0].property.split(' ')[0]} Area`,
-          requests: group.sort((a, b) => b.urgencyScore - a.urgencyScore),
-          category,
-          totalCost,
-          totalDuration,
-          savings: totalSavings,
-          savingsPercentage,
-          optimalRoute: group.map(req => req.property),
-          estimatedCompletion: 'Today 3:00 PM',
-          bundlingReasons: [
-            `All requests are ${category}-related for specialist efficiency`,
-            'Multiple requests in same property complex reduce travel time',
-            group.length >= 3 ? 'Bulk service discount applies for 3+ requests' : 'Reduced setup and travel costs'
-          ],
-          riskFactors: group.some(req => req.priority === 'high') ? 
-            ['Contains high-priority requests that may need immediate attention'] : [],
-          priority: highestPriority
-        })
-      }
-    })
-  })
-
-  return bundles.sort((a, b) => b.savings - a.savings)
-}
 
 const generateInsights = (bundles: BundleGroup[]): BundlingInsight[] => {
   const insights: BundlingInsight[] = []
@@ -280,7 +110,18 @@ export default function MaintenanceBundling() {
   const [bundleHistory, setBundleHistory] = useState<Array<{
     id: string
     name: string
-    workOrders?: Array<{ id: string }>
+    workOrders?: Array<{ 
+      id: string
+      issue: string
+      property: string
+      location: string
+      priority: 'low' | 'medium' | 'high' | 'emergency'
+      category: string
+      estimatedCost: number
+      estimatedDuration: number
+      description: string
+      createdAt: string
+    }>
     serviceArea?: string
     totalCost?: number
     savings?: number
@@ -289,13 +130,155 @@ export default function MaintenanceBundling() {
     status?: string
   }>>([])
   
-  const bundles = useMemo(() => generateBundles(mockMaintenanceRequests), [])
+  // Transform bundle history to match BundleGroup structure
+  const transformedBundles = useMemo(() => {
+    return bundleHistory.map(historyBundle => {
+      // Transform workOrders to requests format
+      const requests: MaintenanceRequest[] = (historyBundle.workOrders || []).map(wo => ({
+        id: wo.id,
+        property: wo.property,
+        propertyId: wo.property.split(' ')[0].toLowerCase().replace(/\s+/g, '-'), // Generate propertyId from property name
+        issue: wo.issue,
+        category: wo.category,
+        priority: wo.priority,
+        location: wo.location,
+        coordinates: { lat: 40.7128, lng: -74.0060 }, // Default coordinates
+        description: wo.description,
+        createdAt: wo.createdAt,
+        estimatedDuration: wo.estimatedDuration,
+        estimatedCost: wo.estimatedCost,
+        urgencyScore: wo.priority === 'high' ? 80 : wo.priority === 'medium' ? 60 : 40,
+        tenantImpact: wo.priority === 'high' ? 'high' : wo.priority === 'medium' ? 'medium' : 'low'
+      }))
+
+      // Transform to BundleGroup structure
+      const bundleGroup: BundleGroup = {
+        id: historyBundle.id,
+        name: historyBundle.name,
+        requests: requests,
+        category: requests[0]?.category || 'mixed',
+        totalCost: historyBundle.totalCost || requests.reduce((sum, req) => sum + req.estimatedCost, 0),
+        totalDuration: requests.reduce((sum, req) => sum + req.estimatedDuration, 0),
+        savings: historyBundle.savings || 0,
+        savingsPercentage: historyBundle.savingsPercentage || 0,
+        optimalRoute: requests.map(req => req.property),
+        estimatedCompletion: historyBundle.status === 'completed' ? 'Completed' : 
+                           historyBundle.status === 'in_progress' ? 'In Progress' : 'Scheduled',
+        bundlingReasons: [
+          `${requests.length} ${requests[0]?.category || 'maintenance'} requests bundled for efficiency`,
+          'Optimized for same service area to reduce travel time',
+          'Bulk service optimization for cost savings'
+        ],
+        riskFactors: requests.some(req => req.priority === 'high') ? 
+          ['Contains high-priority requests that may need immediate attention'] : [],
+        priority: requests.reduce((highest, req) => 
+          req.priority === 'high' || highest === 'high' ? 'high' :
+          req.priority === 'medium' || highest === 'medium' ? 'medium' : 'low'
+        , 'low' as 'low' | 'medium' | 'high')
+      }
+
+      return bundleGroup
+    })
+  }, [bundleHistory])
+
+  const bundles = transformedBundles
   const insights = useMemo(() => generateInsights(bundles), [bundles])
 
   // Load bundle history from localStorage
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem('bundleHistory') || '[]')
-    setBundleHistory(history)
+    // If no history, add some mock data
+    if (history.length === 0) {
+      const mockHistory = [
+        {
+          id: 'BUNDLE-001',
+          name: 'Plumbing Bundle - Sunset Apartments',
+          workOrders: [
+            {
+              id: 'WO-2024-001',
+              issue: 'Kitchen faucet leaking',
+              property: 'Sunset Apartments #204',
+              location: 'Unit 204, Kitchen',
+              priority: 'medium' as const,
+              category: 'plumbing',
+              estimatedCost: 120,
+              estimatedDuration: 1.5,
+              description: 'Kitchen faucet has persistent drip',
+              createdAt: '2024-01-15T10:30:00Z'
+            },
+            {
+              id: 'WO-2024-002',
+              issue: 'Bathroom sink clogged',
+              property: 'Sunset Apartments #206',
+              location: 'Unit 206, Bathroom',
+              priority: 'medium' as const,
+              category: 'plumbing',
+              estimatedCost: 85,
+              estimatedDuration: 1,
+              description: 'Bathroom sink draining slowly',
+              createdAt: '2024-01-15T11:15:00Z'
+            },
+            {
+              id: 'WO-2024-003',
+              issue: 'Toilet running continuously',
+              property: 'Sunset Apartments #208',
+              location: 'Unit 208, Bathroom',
+              priority: 'high' as const,
+              category: 'plumbing',
+              estimatedCost: 65,
+              estimatedDuration: 0.5,
+              description: 'Toilet won\'t stop running',
+              createdAt: '2024-01-15T09:45:00Z'
+            }
+          ],
+          serviceArea: 'Sunset Apartments - Floor 2',
+          totalCost: 270,
+          savings: 45,
+          savingsPercentage: 16.7,
+          acceptedAt: '2024-01-15T15:30:00Z',
+          status: 'completed'
+        },
+        {
+          id: 'BUNDLE-002',
+          name: 'Electrical Bundle - Oak Street Complex',
+          workOrders: [
+            {
+              id: 'WO-2024-004',
+              issue: 'Light fixture not working',
+              property: 'Oak Street Complex #12',
+              location: 'Unit 12, Living Room',
+              priority: 'low' as const,
+              category: 'electrical',
+              estimatedCost: 95,
+              estimatedDuration: 1,
+              description: 'Ceiling light fixture not turning on',
+              createdAt: '2024-01-15T14:20:00Z'
+            },
+            {
+              id: 'WO-2024-005',
+              issue: 'Outlet not working',
+              property: 'Oak Street Complex #15',
+              location: 'Unit 15, Kitchen',
+              priority: 'medium' as const,
+              category: 'electrical',
+              estimatedCost: 75,
+              estimatedDuration: 0.5,
+              description: 'Kitchen outlet has no power',
+              createdAt: '2024-01-15T13:30:00Z'
+            }
+          ],
+          serviceArea: 'Oak Street Complex - Building A',
+          totalCost: 170,
+          savings: 25,
+          savingsPercentage: 14.7,
+          acceptedAt: '2024-01-16T09:15:00Z',
+          status: 'in_progress'
+        }
+      ]
+      setBundleHistory(mockHistory)
+    } else {
+      setBundleHistory(history)
+    }
   }, [activeTab]) // Refresh when switching tabs
   
   const toggleBundleSelection = (bundleId: string) => {
@@ -338,7 +321,6 @@ export default function MaintenanceBundling() {
           <Tabs value={activeTab} onChange={(_, value) => setActiveTab(value as number)}>
             <TabList>
               <Tab>Work Order Generator</Tab>
-              <Tab>Current Bundle Opportunities</Tab>
               <Tab>Bundle History ({bundleHistory.length})</Tab>
             </TabList>
 
@@ -355,7 +337,7 @@ export default function MaintenanceBundling() {
               </Stack>
             </TabPanel>
 
-            {/* Current Bundles Tab */}
+            {/* Bundle History Tab */}
             <TabPanel value={1}>
               <Stack spacing={3}>
 
@@ -442,8 +424,15 @@ export default function MaintenanceBundling() {
       )}
 
       {/* Bundle Cards */}
-      <Grid container spacing={3}>
-        {bundles.map((bundle) => {
+      {bundles.length === 0 ? (
+        <Alert color="neutral" variant="soft">
+          <Typography level="body-sm">
+            No bundle history yet. Accept bundles from the Work Order Bundle Generator to see them here.
+          </Typography>
+        </Alert>
+      ) : (
+        <Grid container spacing={3}>
+          {bundles.map((bundle) => {
           const isSelected = selectedBundles.includes(bundle.id)
           
           return (
@@ -630,6 +619,7 @@ export default function MaintenanceBundling() {
           )
         })}
       </Grid>
+      )}
 
       {/* Summary Statistics */}
       <Card>
@@ -681,86 +671,11 @@ export default function MaintenanceBundling() {
           </Grid>
         </CardContent>
       </Card>
-              </Stack>
-            </TabPanel>
-
-            {/* Bundle History Tab */}
-            <TabPanel value={2}>
-              <Stack spacing={3}>
-                {bundleHistory.length === 0 ? (
-                  <Alert color="neutral" variant="soft">
-                    <Typography level="body-sm">
-                      No bundle history yet. Accept bundles from the Work Order Bundle Generator to see them here.
-                    </Typography>
-                  </Alert>
-                ) : (
-                  <>
-                    <Typography level="h4">Bundle History</Typography>
-                    <Table hoverRow>
-                      <thead>
-                        <tr>
-                          <th>Bundle Name</th>
-                          <th>Work Orders</th>
-                          <th>Service Area</th>
-                          <th>Total Cost</th>
-                          <th>Savings</th>
-                          <th>Accepted Date</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bundleHistory.map((bundle, index) => (
-                          <tr key={bundle.id || index}>
-                            <td>
-                              <Typography level="body-sm" fontWeight="medium">
-                                {bundle.name}
-                              </Typography>
-                            </td>
-                            <td>
-                              <Typography level="body-sm">
-                                {bundle.workOrders?.length || 0} work orders
-                              </Typography>
-                            </td>
-                            <td>
-                              <Typography level="body-sm">
-                                {bundle.serviceArea || 'N/A'}
-                              </Typography>
-                            </td>
-                            <td>
-                              <Typography level="body-sm">
-                                ${bundle.totalCost?.toFixed(0) || 'N/A'}
-                              </Typography>
-                            </td>
-                            <td>
-                              <Chip size="sm" color="success" variant="soft">
-                                ${bundle.savings?.toFixed(0) || '0'} ({bundle.savingsPercentage?.toFixed(1) || '0'}%)
-                              </Chip>
-                            </td>
-                            <td>
-                              <Typography level="body-sm">
-                                {bundle.acceptedAt ? new Date(bundle.acceptedAt).toLocaleDateString() : 'N/A'}
-                              </Typography>
-                            </td>
-                            <td>
-                              <Chip 
-                                size="sm" 
-                                color={bundle.status === 'accepted' ? 'success' : 'neutral'} 
-                                variant="soft"
-                              >
-                                {bundle.status || 'pending'}
-                              </Chip>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  </>
-                )}
-              </Stack>
-            </TabPanel>
-          </Tabs>
-        </CardContent>
-      </Card>
     </Stack>
+          </TabPanel>
+        </Tabs>
+      </CardContent>
+    </Card>
+  </Stack>
   )
 } 
