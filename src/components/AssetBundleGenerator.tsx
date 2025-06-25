@@ -34,6 +34,9 @@ interface Asset {
   name: string
   type: string
   location: string
+  specificLocation: string
+  installationDate: string
+  assetAge: number
   lastServiced: string
   typicalServiceInterval: number
   confidenceLevel: 'High' | 'Medium' | 'Low'
@@ -50,65 +53,80 @@ interface BundleOpportunity {
 
 // Mock API response structure
 const mockApiResponse: BundleOpportunity = {
-  location: "Location A",
+  location: "Sunset Ridge Apartments",
   assets: [
     {
-      id: "HVAC-001",
-      name: "HVAC Unit A",
+      id: "HVAC-RTU-001",
+      name: "Carrier 50TCQ Rooftop Unit",
       type: "HVAC",
-      location: "Location A",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Building A - Rooftop North",
+      installationDate: "March 15, 2019",
+      assetAge: 5,
       lastServiced: "108 days ago",
       typicalServiceInterval: 120,
       confidenceLevel: "High",
-      reason: "Based on historical trends, this asset is likely due for service within the next 12 days.",
+      reason: "Quarterly maintenance due. Compressor showing signs of wear, filter replacement required.",
       daysUntilService: 12,
       priority: "High"
     },
     {
-      id: "REF-002",
-      name: "Refrigerator Unit B",
+      id: "REF-WI-204",
+      name: "Whirlpool WRF555SDFZ Refrigerator",
       type: "Refrigeration",
-      location: "Location A",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Unit 204A - Kitchen",
+      installationDate: "June 8, 2021",
+      assetAge: 3,
       lastServiced: "95 days ago",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
-      reason: "Overdue for maintenance based on typical service interval.",
+      reason: "Overdue for maintenance. Tenant reported temperature fluctuations.",
       daysUntilService: -5,
       priority: "High"
     },
     {
-      id: "LIGHT-003",
-      name: "LED Lighting System",
+      id: "LIGHT-LOB-001",
+      name: "Philips LED Lobby Lighting Array",
       type: "Lighting",
-      location: "Location A",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Main Lobby - Entrance",
+      installationDate: "January 12, 2020",
+      assetAge: 4,
       lastServiced: "45 days ago",
       typicalServiceInterval: 180,
       confidenceLevel: "Medium",
-      reason: "Preventive maintenance recommended to avoid future issues.",
+      reason: "Preventive maintenance for LED driver inspection and photocell calibration.",
       daysUntilService: 135,
       priority: "Low"
     },
     {
-      id: "ELEC-004",
-      name: "Electrical Panel A",
+      id: "ELEC-MP-001",
+      name: "Square D 400A Main Panel",
       type: "Electrical",
-      location: "Location A",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Building A - Electrical Room",
+      installationDate: "September 3, 2018",
+      assetAge: 6,
       lastServiced: "200 days ago",
       typicalServiceInterval: 365,
       confidenceLevel: "Medium",
-      reason: "Annual inspection due within next quarter.",
+      reason: "Annual electrical safety inspection required by local code compliance.",
       daysUntilService: 165,
       priority: "Medium"
     },
     {
-      id: "HVAC-005",
-      name: "Air Handler Unit C",
+      id: "HVAC-AHU-002",
+      name: "Trane TAM Air Handler Unit",
       type: "HVAC",
-      location: "Location A",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Building A - Mechanical Room 2F",
+      installationDate: "November 20, 2020",
+      assetAge: 4,
       lastServiced: "75 days ago",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
-      reason: "Filter replacement and system check needed soon.",
+      reason: "Filter replacement and belt inspection due. System efficiency monitoring recommended.",
       daysUntilService: 15,
       priority: "Medium"
     }
@@ -234,13 +252,15 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
         assetId: asset.id,
         assetName: asset.name,
         assetType: asset.type,
-        priority: asset.priority
+        priority: asset.priority,
+        specificLocation: asset.specificLocation
       })),
       serviceArea: bundleData?.location,
       acceptedAt: new Date().toISOString(),
       status: 'ready_for_dispatch',
       createdFrom: 'asset_bundling',
-      originalWoid: workOrderId
+      originalWoid: workOrderId,
+      estimatedDuration: `${Math.ceil(selectedAssetsData.length * 1.5)} hours`
     }
 
     // Save to localStorage for bundle history and dispatch availability
@@ -336,28 +356,64 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
           <Typography level="h4" sx={{ mb: 2 }}>
             Generate Bundle Suggestions
           </Typography>
-          <Stack direction="row" spacing={2} alignItems="flex-end">
-            <Box sx={{ flex: 1 }}>
-              <Typography level="body-sm" sx={{ mb: 1 }}>
-                Work Order ID
+          <Stack spacing={2}>
+            <Stack direction="row" spacing={2} alignItems="flex-end">
+              <Box sx={{ flex: 1 }}>
+                <Typography level="body-sm" sx={{ mb: 1 }}>
+                  Work Order ID
+                </Typography>
+                <Input
+                  placeholder="Enter Work Order ID (e.g., 9815575)"
+                  value={workOrderId}
+                  onChange={(e) => setWorkOrderId(e.target.value)}
+                  startDecorator={<SearchIcon />}
+                  disabled={loading}
+                />
+              </Box>
+              <Button
+                variant="solid"
+                startDecorator={loading ? undefined : <AutoFixHighIcon />}
+                onClick={handleGenerateBundle}
+                loading={loading}
+                disabled={!workOrderId.trim()}
+              >
+                Generate bundle
+              </Button>
+            </Stack>
+            
+            {/* Suggested Work Order IDs */}
+            <Box>
+              <Typography level="body-xs" sx={{ mb: 1, color: 'text.secondary' }}>
+                🔍 Recent work orders with bundling opportunities:
               </Typography>
-              <Input
-                placeholder="Enter Work Order ID (e.g., WO-12345)"
-                value={workOrderId}
-                onChange={(e) => setWorkOrderId(e.target.value)}
-                startDecorator={<SearchIcon />}
-                disabled={loading}
-              />
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {[
+                  { id: '9815575', type: 'Rooftop HVAC Service', priority: 'High' },
+                  { id: '9798675', type: 'Electrical Panel Inspection', priority: 'Medium' },
+                  { id: '9814286', type: 'Appliance Maintenance', priority: 'High' }
+                ].map((suggestion) => (
+                  <Chip
+                    key={suggestion.id}
+                    size="sm"
+                    variant="outlined"
+                    color={suggestion.priority === 'High' ? 'danger' : 'warning'}
+                    onClick={() => setWorkOrderId(suggestion.id)}
+                    sx={{ 
+                      cursor: 'pointer',
+                      '&:hover': { 
+                        bgcolor: suggestion.priority === 'High' ? 'danger.softHoverBg' : 'warning.softHoverBg',
+                        borderColor: suggestion.priority === 'High' ? 'danger.main' : 'warning.main'
+                      }
+                    }}
+                  >
+                    {suggestion.id} • {suggestion.type}
+                  </Chip>
+                ))}
+              </Stack>
+              <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary', fontStyle: 'italic' }}>
+                Click on a work order to check for bundling opportunities
+              </Typography>
             </Box>
-            <Button
-              variant="solid"
-              startDecorator={loading ? undefined : <AutoFixHighIcon />}
-              onClick={handleGenerateBundle}
-              loading={loading}
-              disabled={!workOrderId.trim()}
-            >
-              Generate bundle
-            </Button>
           </Stack>
           
           {error && (
@@ -510,6 +566,42 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                                 color={isOverdue ? 'danger' : 'warning'}
                                 sx={{ height: 6 }}
                               />
+                            </Box>
+
+                            {/* Asset Information */}
+                            <Box sx={{ 
+                              bgcolor: 'neutral.softBg', 
+                              p: 1.5, 
+                              borderRadius: 'sm',
+                              border: '1px solid',
+                              borderColor: 'neutral.outlinedBorder'
+                            }}>
+                              <Stack spacing={1}>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <strong>Location:</strong>
+                                  </Typography>
+                                  <Typography level="body-xs" fontWeight="medium">
+                                    {asset.specificLocation}
+                                  </Typography>
+                                </Stack>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <strong>Installed:</strong>
+                                  </Typography>
+                                  <Typography level="body-xs" fontWeight="medium">
+                                    {asset.installationDate}
+                                  </Typography>
+                                </Stack>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                                    <strong>Age:</strong>
+                                  </Typography>
+                                  <Typography level="body-xs" fontWeight="medium">
+                                    {asset.assetAge} years
+                                  </Typography>
+                                </Stack>
+                              </Stack>
                             </Box>
 
                             {/* Asset Details */}
