@@ -134,14 +134,14 @@ function App() {
           >
             Analytics
           </Button>
-          <Button
+          {/* <Button
             variant={activeTab === 'dispatch' ? 'solid' : 'plain'}
             startDecorator={<SendIcon />}
             onClick={() => setActiveTab('dispatch')}
             sx={{ justifyContent: 'flex-start' }}
           >
             Dispatch
-          </Button>
+          </Button> */}
           <Button
             variant={activeTab === 'bundling' ? 'solid' : 'plain'}
             startDecorator={<GroupIcon />}
