@@ -40,17 +40,12 @@ interface Asset {
   reason: string
   daysUntilService: number
   priority: 'High' | 'Medium' | 'Low'
-  estimatedCost: number
-  estimatedDuration: number
 }
 
 interface BundleOpportunity {
   location: string
   assets: Asset[]
   totalAssets: number
-  estimatedTotalCost: number
-  estimatedTotalDuration: number
-  potentialSavings: number
 }
 
 // Mock API response structure
@@ -67,9 +62,7 @@ const mockApiResponse: BundleOpportunity = {
       confidenceLevel: "High",
       reason: "Based on historical trends, this asset is likely due for service within the next 12 days.",
       daysUntilService: 12,
-      priority: "High",
-      estimatedCost: 250,
-      estimatedDuration: 3
+      priority: "High"
     },
     {
       id: "REF-002",
@@ -81,9 +74,7 @@ const mockApiResponse: BundleOpportunity = {
       confidenceLevel: "High",
       reason: "Overdue for maintenance based on typical service interval.",
       daysUntilService: -5,
-      priority: "High",
-      estimatedCost: 180,
-      estimatedDuration: 2
+      priority: "High"
     },
     {
       id: "LIGHT-003",
@@ -95,9 +86,7 @@ const mockApiResponse: BundleOpportunity = {
       confidenceLevel: "Medium",
       reason: "Preventive maintenance recommended to avoid future issues.",
       daysUntilService: 135,
-      priority: "Low",
-      estimatedCost: 120,
-      estimatedDuration: 1.5
+      priority: "Low"
     },
     {
       id: "ELEC-004",
@@ -109,9 +98,7 @@ const mockApiResponse: BundleOpportunity = {
       confidenceLevel: "Medium",
       reason: "Annual inspection due within next quarter.",
       daysUntilService: 165,
-      priority: "Medium",
-      estimatedCost: 300,
-      estimatedDuration: 2.5
+      priority: "Medium"
     },
     {
       id: "HVAC-005",
@@ -123,15 +110,10 @@ const mockApiResponse: BundleOpportunity = {
       confidenceLevel: "High",
       reason: "Filter replacement and system check needed soon.",
       daysUntilService: 15,
-      priority: "Medium",
-      estimatedCost: 150,
-      estimatedDuration: 1
+      priority: "Medium"
     }
   ],
-  totalAssets: 5,
-  estimatedTotalCost: 1000,
-  estimatedTotalDuration: 10,
-  potentialSavings: 200
+  totalAssets: 5
 }
 
 interface AssetBundleGeneratorProps {
@@ -229,9 +211,6 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
   }
 
   const selectedAssetsData = bundleData?.assets.filter(asset => selectedAssets.includes(asset.id)) || []
-  const totalSelectedCost = selectedAssetsData.reduce((sum, asset) => sum + asset.estimatedCost, 0)
-  const totalSelectedDuration = selectedAssetsData.reduce((sum, asset) => sum + asset.estimatedDuration, 0)
-  const estimatedSavings = selectedAssetsData.length > 1 ? Math.floor(totalSelectedCost * 0.15) : 0
 
   const generateBundle = () => {
     if (selectedAssetsData.length === 0) {
@@ -255,14 +234,9 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
         assetId: asset.id,
         assetName: asset.name,
         assetType: asset.type,
-        estimatedCost: asset.estimatedCost,
-        estimatedDuration: asset.estimatedDuration,
         priority: asset.priority
       })),
       serviceArea: bundleData?.location,
-      totalCost: totalSelectedCost,
-      savings: estimatedSavings,
-      savingsPercentage: estimatedSavings > 0 ? (estimatedSavings / totalSelectedCost) * 100 : 0,
       acceptedAt: new Date().toISOString(),
       status: 'ready_for_dispatch',
       createdFrom: 'asset_bundling',
@@ -412,7 +386,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
               </Alert>
 
               <Grid container spacing={3}>
-                <Grid xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={6}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Typography level="h2" sx={{ color: 'primary.main' }}>
                       {bundleData.totalAssets}
@@ -422,33 +396,13 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid xs={12} sm={6} md={3}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2" sx={{ color: 'warning.main' }}>
-                      ${bundleData.estimatedTotalCost}
-                    </Typography>
-                    <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
-                      Total Estimated Cost
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid xs={12} sm={6} md={3}>
+                <Grid xs={12} sm={6} md={6}>
                   <Box sx={{ textAlign: 'center' }}>
                     <Typography level="h2" sx={{ color: 'success.main' }}>
-                      {bundleData.estimatedTotalDuration}h
+                      {selectedAssets.length}
                     </Typography>
                     <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
-                      Total Duration
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid xs={12} sm={6} md={3}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2" sx={{ color: 'success.main' }}>
-                      ${bundleData.potentialSavings}
-                    </Typography>
-                    <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
-                      Potential Savings
+                      Selected Assets
                     </Typography>
                   </Box>
                 </Grid>
@@ -466,10 +420,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
               {selectedAssets.length > 0 && (
                 <Alert color="primary" variant="soft" sx={{ mb: 3 }}>
                   <Typography level="body-sm">
-                    <strong>{selectedAssets.length} assets selected</strong> • 
-                    Total Cost: ${totalSelectedCost} • 
-                    Duration: {totalSelectedDuration}h • 
-                    Estimated Savings: ${estimatedSavings}
+                    <strong>{selectedAssets.length} assets selected</strong> for bundling
                   </Typography>
                 </Alert>
               )}
@@ -571,15 +522,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                               </Typography>
                             </Box>
 
-                            {/* Cost & Duration */}
-                            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                              <Typography level="body-sm">
-                                <strong>Cost:</strong> ${asset.estimatedCost}
-                              </Typography>
-                              <Typography level="body-sm">
-                                <strong>Duration:</strong> {asset.estimatedDuration}h
-                              </Typography>
-                            </Stack>
+
                           </Stack>
                         </CardContent>
                       </Card>
@@ -600,13 +543,8 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                       Bundle Summary
                     </Typography>
                     <Typography level="body-sm">
-                      {selectedAssets.length} assets selected • ${totalSelectedCost} total cost • {totalSelectedDuration}h duration
+                      {selectedAssets.length} assets selected for bundling
                     </Typography>
-                    {estimatedSavings > 0 && (
-                      <Typography level="body-sm" sx={{ color: 'success.main', fontWeight: 'medium' }}>
-                        Estimated savings: ${estimatedSavings} (15% bundling discount)
-                      </Typography>
-                    )}
                     <Typography level="body-xs" sx={{ color: 'text.secondary', mt: 1 }}>
                       This will create {selectedAssets.length} work orders and make the bundle available for dispatch
                     </Typography>

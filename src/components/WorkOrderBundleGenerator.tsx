@@ -414,7 +414,7 @@ export default function WorkOrderBundleGenerator() {
       setValidWorkOrders(allRelevantWorkOrders)
       
       const recommendations = generateBundleRecommendations(allRelevantWorkOrders)
-      setBundleRecommendations(recommendations)
+    setBundleRecommendations(recommendations)
     }
     
     setShowRecommendations(true)
@@ -526,7 +526,7 @@ export default function WorkOrderBundleGenerator() {
               const isFirstWorkOrder = index === 0
               
               return (
-                <Grid xs={12} sm={6} md={4} key={wo.id}>
+              <Grid xs={12} sm={6} md={4} key={wo.id}>
                   <Card 
                     size="sm" 
                     variant={isUserInput ? "outlined" : "soft"}
@@ -535,11 +535,11 @@ export default function WorkOrderBundleGenerator() {
                       borderColor: isFirstWorkOrder ? 'primary.main' : undefined
                     }}
                   >
-                    <CardContent>
-                      <Stack spacing={1}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography level="body-sm" fontWeight="bold">
-                            {wo.id}
+                  <CardContent>
+                    <Stack spacing={1}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography level="body-sm" fontWeight="bold">
+                          {wo.id}
                             {isFirstWorkOrder && (
                               <Chip size="sm" color="primary" variant="solid" sx={{ ml: 1 }}>
                                 Primary
@@ -550,32 +550,32 @@ export default function WorkOrderBundleGenerator() {
                                 AI Suggested
                               </Chip>
                             )}
-                          </Typography>
-                          <Chip size="sm" color={getPriorityColor(wo.priority)} variant="soft">
-                            {wo.priority}
-                          </Chip>
-                        </Box>
-                        <Typography level="body-xs">
-                          {wo.title}
                         </Typography>
+                        <Chip size="sm" color={getPriorityColor(wo.priority)} variant="soft">
+                          {wo.priority}
+                        </Chip>
+                      </Box>
+                      <Typography level="body-xs">
+                        {wo.title}
+                      </Typography>
                         <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
                           {wo.property}
                         </Typography>
-                        <Stack direction="row" spacing={1}>
-                          <Chip size="sm" color={getServiceTypeColor(wo.serviceType)} variant="soft" startDecorator={<BuildIcon />}>
-                            {wo.serviceType}
-                          </Chip>
-                          <Chip size="sm" color="neutral" variant="outlined" startDecorator={<LocationIcon />}>
-                            {wo.serviceArea}
-                          </Chip>
-                        </Stack>
-                        <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                          ${wo.estimatedCost} • {wo.estimatedDuration}h
-                        </Typography>
+                      <Stack direction="row" spacing={1}>
+                        <Chip size="sm" color={getServiceTypeColor(wo.serviceType)} variant="soft" startDecorator={<BuildIcon />}>
+                          {wo.serviceType}
+                        </Chip>
+                        <Chip size="sm" color="neutral" variant="outlined" startDecorator={<LocationIcon />}>
+                          {wo.serviceArea}
+                        </Chip>
                       </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
+                      <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                        ${wo.estimatedCost} • {wo.estimatedDuration}h
+                      </Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
               )
             })}
           </Grid>

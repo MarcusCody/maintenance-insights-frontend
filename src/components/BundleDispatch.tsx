@@ -37,14 +37,9 @@ interface BundleForDispatch {
     assetId: string
     assetName: string
     assetType: string
-    estimatedCost: number
-    estimatedDuration: number
     priority: string
   }>
   serviceArea: string
-  totalCost: number
-  savings: number
-  savingsPercentage: number
   acceptedAt: string
   status: string
   createdFrom: string
@@ -255,41 +250,41 @@ export default function BundleDispatch() {
                          </Avatar>
                       </Box>
 
-                      {/* Bundle Info */}
-                      <Box sx={{ 
-                        bgcolor: 'success.softBg', 
-                        p: 2, 
-                        borderRadius: 'sm',
-                        border: '1px solid',
-                        borderColor: 'success.outlinedBorder'
-                      }}>
-                        <Stack direction="row" spacing={3} alignItems="center">
-                          <Box>
-                            <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                              Total Cost
-                            </Typography>
-                            <Typography level="title-sm" fontWeight="bold">
-                              ${bundle.totalCost.toFixed(0)}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                              Savings
-                            </Typography>
-                            <Typography level="title-sm" fontWeight="bold" sx={{ color: 'success.main' }}>
-                              ${bundle.savings.toFixed(0)} ({bundle.savingsPercentage.toFixed(1)}%)
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                              Duration
-                            </Typography>
-                            <Typography level="title-sm" fontWeight="bold">
-                              {bundle.workOrders.reduce((sum, wo) => sum + wo.estimatedDuration, 0)}h
-                            </Typography>
-                          </Box>
-                        </Stack>
-                      </Box>
+                                             {/* Bundle Info */}
+                       <Box sx={{ 
+                         bgcolor: 'primary.softBg', 
+                         p: 2, 
+                         borderRadius: 'sm',
+                         border: '1px solid',
+                         borderColor: 'primary.outlinedBorder'
+                       }}>
+                         <Stack direction="row" spacing={3} alignItems="center">
+                           <Box>
+                             <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                               Work Orders
+                             </Typography>
+                             <Typography level="title-sm" fontWeight="bold">
+                               {bundle.workOrders.length}
+                             </Typography>
+                           </Box>
+                           <Box>
+                             <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                               Service Area
+                             </Typography>
+                             <Typography level="title-sm" fontWeight="bold">
+                               {bundle.serviceArea}
+                             </Typography>
+                           </Box>
+                           <Box>
+                             <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
+                               Status
+                             </Typography>
+                             <Typography level="title-sm" fontWeight="bold" sx={{ color: 'success.main' }}>
+                               Ready
+                             </Typography>
+                           </Box>
+                         </Stack>
+                       </Box>
 
                       {/* Work Orders List */}
                       <Box>
@@ -318,7 +313,7 @@ export default function BundleDispatch() {
                                    </Chip>
                                  </Stack>
                                  <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-                                   ${wo.estimatedCost} • {wo.estimatedDuration}h • {wo.priority} priority
+                                   {wo.priority} priority
                                  </Typography>
                                </ListItemContent>
                              </ListItem>
@@ -379,18 +374,16 @@ export default function BundleDispatch() {
                  <>
                    <Typography level="h4">Dispatched Bundles History</Typography>
                    <Table>
-                     <thead>
-                       <tr>
-                         <th>Bundle Name</th>
-                         <th>Service Area</th>
-                         <th>Work Orders</th>
-                         <th>Total Cost</th>
-                         <th>Savings</th>
-                         <th>Created</th>
-                         <th>Dispatched</th>
-                         <th>Status</th>
-                       </tr>
-                     </thead>
+                                            <thead>
+                         <tr>
+                           <th>Bundle Name</th>
+                           <th>Service Area</th>
+                           <th>Work Orders</th>
+                           <th>Created</th>
+                           <th>Dispatched</th>
+                           <th>Status</th>
+                         </tr>
+                       </thead>
                      <tbody>
                        {dispatchedBundles.map((bundle) => (
                          <tr key={bundle.id}>
@@ -409,16 +402,7 @@ export default function BundleDispatch() {
                                {bundle.workOrders.length}
                              </Typography>
                            </td>
-                           <td>
-                             <Typography level="body-sm">
-                               ${bundle.totalCost.toFixed(0)}
-                             </Typography>
-                           </td>
-                           <td>
-                             <Chip size="sm" color="success" variant="soft">
-                               ${bundle.savings.toFixed(0)}
-                             </Chip>
-                           </td>
+
                            <td>
                              <Typography level="body-sm">
                                {new Date(bundle.acceptedAt).toLocaleDateString()}
