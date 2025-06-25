@@ -356,28 +356,64 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
           <Typography level="h4" sx={{ mb: 2 }}>
             Generate Bundle Suggestions
           </Typography>
-          <Stack direction="row" spacing={2} alignItems="flex-end">
-            <Box sx={{ flex: 1 }}>
-              <Typography level="body-sm" sx={{ mb: 1 }}>
-                Work Order ID
+          <Stack spacing={2}>
+            <Stack direction="row" spacing={2} alignItems="flex-end">
+              <Box sx={{ flex: 1 }}>
+                <Typography level="body-sm" sx={{ mb: 1 }}>
+                  Work Order ID
+                </Typography>
+                <Input
+                  placeholder="Enter Work Order ID (e.g., 9815575)"
+                  value={workOrderId}
+                  onChange={(e) => setWorkOrderId(e.target.value)}
+                  startDecorator={<SearchIcon />}
+                  disabled={loading}
+                />
+              </Box>
+              <Button
+                variant="solid"
+                startDecorator={loading ? undefined : <AutoFixHighIcon />}
+                onClick={handleGenerateBundle}
+                loading={loading}
+                disabled={!workOrderId.trim()}
+              >
+                Generate bundle
+              </Button>
+            </Stack>
+            
+            {/* Suggested Work Order IDs */}
+            <Box>
+              <Typography level="body-xs" sx={{ mb: 1, color: 'text.secondary' }}>
+                🔍 Recent work orders with bundling opportunities:
               </Typography>
-              <Input
-                placeholder="Enter Work Order ID (e.g., WO-12345)"
-                value={workOrderId}
-                onChange={(e) => setWorkOrderId(e.target.value)}
-                startDecorator={<SearchIcon />}
-                disabled={loading}
-              />
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {[
+                  { id: '9815575', type: 'HVAC Maintenance', priority: 'High' },
+                  { id: '9798675', type: 'Electrical Repair', priority: 'Medium' },
+                  { id: '9814286', type: 'Plumbing Service', priority: 'High' }
+                ].map((suggestion) => (
+                  <Chip
+                    key={suggestion.id}
+                    size="sm"
+                    variant="outlined"
+                    color={suggestion.priority === 'High' ? 'danger' : 'warning'}
+                    onClick={() => setWorkOrderId(suggestion.id)}
+                    sx={{ 
+                      cursor: 'pointer',
+                      '&:hover': { 
+                        bgcolor: suggestion.priority === 'High' ? 'danger.softHoverBg' : 'warning.softHoverBg',
+                        borderColor: suggestion.priority === 'High' ? 'danger.main' : 'warning.main'
+                      }
+                    }}
+                  >
+                    {suggestion.id} • {suggestion.type}
+                  </Chip>
+                ))}
+              </Stack>
+              <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary', fontStyle: 'italic' }}>
+                Click on a work order to check for bundling opportunities
+              </Typography>
             </Box>
-            <Button
-              variant="solid"
-              startDecorator={loading ? undefined : <AutoFixHighIcon />}
-              onClick={handleGenerateBundle}
-              loading={loading}
-              disabled={!workOrderId.trim()}
-            >
-              Generate bundle
-            </Button>
           </Stack>
           
           {error && (
