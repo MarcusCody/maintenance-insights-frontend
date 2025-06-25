@@ -53,80 +53,80 @@ interface BundleOpportunity {
 
 // Mock API response structure
 const mockApiResponse: BundleOpportunity = {
-  location: "Location A",
+  location: "Sunset Ridge Apartments",
   assets: [
     {
-      id: "HVAC-001",
-      name: "HVAC Unit A",
+      id: "HVAC-RTU-001",
+      name: "Carrier 50TCQ Rooftop Unit",
       type: "HVAC",
-      location: "Location A",
-      specificLocation: "Rooftop - North Side",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Building A - Rooftop North",
       installationDate: "March 15, 2019",
       assetAge: 5,
       lastServiced: "108 days ago",
       typicalServiceInterval: 120,
       confidenceLevel: "High",
-      reason: "Based on historical trends, this asset is likely due for service within the next 12 days.",
+      reason: "Quarterly maintenance due. Compressor showing signs of wear, filter replacement required.",
       daysUntilService: 12,
       priority: "High"
     },
     {
-      id: "REF-002",
-      name: "Refrigerator Unit B",
+      id: "REF-WI-204",
+      name: "Whirlpool WRF555SDFZ Refrigerator",
       type: "Refrigeration",
-      location: "Location A",
-      specificLocation: "Kitchen - Unit 204",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Unit 204A - Kitchen",
       installationDate: "June 8, 2021",
       assetAge: 3,
       lastServiced: "95 days ago",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
-      reason: "Overdue for maintenance based on typical service interval.",
+      reason: "Overdue for maintenance. Tenant reported temperature fluctuations.",
       daysUntilService: -5,
       priority: "High"
     },
     {
-      id: "LIGHT-003",
-      name: "LED Lighting System",
+      id: "LIGHT-LOB-001",
+      name: "Philips LED Lobby Lighting Array",
       type: "Lighting",
-      location: "Location A",
-      specificLocation: "Common Area - Lobby",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Main Lobby - Entrance",
       installationDate: "January 12, 2020",
       assetAge: 4,
       lastServiced: "45 days ago",
       typicalServiceInterval: 180,
       confidenceLevel: "Medium",
-      reason: "Preventive maintenance recommended to avoid future issues.",
+      reason: "Preventive maintenance for LED driver inspection and photocell calibration.",
       daysUntilService: 135,
       priority: "Low"
     },
     {
-      id: "ELEC-004",
-      name: "Electrical Panel A",
+      id: "ELEC-MP-001",
+      name: "Square D 400A Main Panel",
       type: "Electrical",
-      location: "Location A",
-      specificLocation: "Basement - Utility Room",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Building A - Electrical Room",
       installationDate: "September 3, 2018",
       assetAge: 6,
       lastServiced: "200 days ago",
       typicalServiceInterval: 365,
       confidenceLevel: "Medium",
-      reason: "Annual inspection due within next quarter.",
+      reason: "Annual electrical safety inspection required by local code compliance.",
       daysUntilService: 165,
       priority: "Medium"
     },
     {
-      id: "HVAC-005",
-      name: "Air Handler Unit C",
+      id: "HVAC-AHU-002",
+      name: "Trane TAM Air Handler Unit",
       type: "HVAC",
-      location: "Location A",
-      specificLocation: "Mechanical Room - 2nd Floor",
+      location: "Sunset Ridge Apartments",
+      specificLocation: "Building A - Mechanical Room 2F",
       installationDate: "November 20, 2020",
       assetAge: 4,
       lastServiced: "75 days ago",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
-      reason: "Filter replacement and system check needed soon.",
+      reason: "Filter replacement and belt inspection due. System efficiency monitoring recommended.",
       daysUntilService: 15,
       priority: "Medium"
     }
@@ -388,9 +388,9 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {[
-                  { id: '9815575', type: 'HVAC Maintenance', priority: 'High' },
-                  { id: '9798675', type: 'Electrical Repair', priority: 'Medium' },
-                  { id: '9814286', type: 'Plumbing Service', priority: 'High' }
+                  { id: '9815575', type: 'Rooftop HVAC Service', priority: 'High' },
+                  { id: '9798675', type: 'Electrical Panel Inspection', priority: 'Medium' },
+                  { id: '9814286', type: 'Appliance Maintenance', priority: 'High' }
                 ].map((suggestion) => (
                   <Chip
                     key={suggestion.id}
