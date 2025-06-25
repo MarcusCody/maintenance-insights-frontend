@@ -27,6 +27,7 @@ import {
   ElectricalServices as ElectricalIcon,
   Send as SendIcon,
   CheckCircle as CheckCircleIcon,
+  Psychology as PsychologyIcon,
 } from '@mui/icons-material'
 
 interface Asset {
@@ -372,7 +373,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
               </Box>
               <Button
                 variant="solid"
-                startDecorator={loading ? undefined : <AutoFixHighIcon />}
+                startDecorator={loading ? undefined : <PsychologyIcon />}
                 onClick={handleGenerateBundle}
                 loading={loading}
                 disabled={!workOrderId.trim()}
@@ -436,7 +437,8 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
               </Typography>
               
               <Alert color="success" variant="soft" sx={{ mb: 3 }}>
-                <Typography level="body-sm">
+                <Typography level="body-sm" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PsychologyIcon sx={{ color: 'success.main' }} />
                   <strong>AI has identified {bundleData.totalAssets} assets</strong> in {bundleData.location} that are approaching their next service window.
                 </Typography>
               </Alert>
