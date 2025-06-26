@@ -42,6 +42,7 @@ import {
   Add as AddIcon,
   Send as SendIcon,
   Group as GroupIcon,
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
@@ -125,7 +126,7 @@ function App() {
           >
             Bundle Dispatch
           </Button>
-          {/* <Button
+          <Button
             variant={activeTab === 'dashboard' ? 'solid' : 'plain'}
             startDecorator={<DashboardIcon />}
             onClick={() => setActiveTab('dashboard')}
@@ -133,7 +134,7 @@ function App() {
           >
             Dashboard
           </Button>
-          <Button
+          {/* <Button
             variant={activeTab === 'properties' ? 'solid' : 'plain'}
             startDecorator={<HomeIcon />}
             onClick={() => setActiveTab('properties')}
