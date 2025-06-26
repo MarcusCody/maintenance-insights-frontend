@@ -38,6 +38,7 @@ interface Asset {
   installationDate: string
   assetAge: number
   lastServiced: string
+  lastServicedDate: string // Add formatted service date
   typicalServiceInterval: number
   confidenceLevel: 'High' | 'Medium' | 'Low'
   reason: string
@@ -49,6 +50,15 @@ interface BundleOpportunity {
   location: string
   assets: Asset[]
   totalAssets: number
+}
+
+interface ApiAssetData {
+  LocationAssetId: number
+  AverageInterval: number
+  LocationId: number
+  EquipmentType: string
+  Manufacturer: string
+  LastServiceDate: string
 }
 
 // Mock API response structure
@@ -64,6 +74,7 @@ const mockApiResponse: BundleOpportunity = {
       installationDate: "March 15, 2019",
       assetAge: 5,
       lastServiced: "108 days ago",
+      lastServicedDate: "July 15, 2024",
       typicalServiceInterval: 120,
       confidenceLevel: "High",
       reason: "Quarterly maintenance due. Compressor showing signs of wear, filter replacement required.",
@@ -79,6 +90,7 @@ const mockApiResponse: BundleOpportunity = {
       installationDate: "June 8, 2021",
       assetAge: 3,
       lastServiced: "95 days ago",
+      lastServicedDate: "August 1, 2024",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
       reason: "Overdue for maintenance. Tenant reported temperature fluctuations.",
@@ -94,6 +106,7 @@ const mockApiResponse: BundleOpportunity = {
       installationDate: "January 12, 2020",
       assetAge: 4,
       lastServiced: "45 days ago",
+      lastServicedDate: "September 15, 2024",
       typicalServiceInterval: 180,
       confidenceLevel: "Medium",
       reason: "Preventive maintenance for LED driver inspection and photocell calibration.",
@@ -109,6 +122,7 @@ const mockApiResponse: BundleOpportunity = {
       installationDate: "September 3, 2018",
       assetAge: 6,
       lastServiced: "200 days ago",
+      lastServicedDate: "May 10, 2024",
       typicalServiceInterval: 365,
       confidenceLevel: "Medium",
       reason: "Annual electrical safety inspection required by local code compliance.",
@@ -124,6 +138,7 @@ const mockApiResponse: BundleOpportunity = {
       installationDate: "November 20, 2020",
       assetAge: 4,
       lastServiced: "75 days ago",
+      lastServicedDate: "September 1, 2024",
       typicalServiceInterval: 90,
       confidenceLevel: "High",
       reason: "Filter replacement and belt inspection due. System efficiency monitoring recommended.",
@@ -132,6 +147,87 @@ const mockApiResponse: BundleOpportunity = {
     }
   ],
   totalAssets: 5
+}
+
+// Helper functions for API data transformation
+const getAssetTypeFromEquipment = (equipmentType: string): string => {
+  const type = equipmentType.toLowerCase()
+  if (type.includes('hvac') || type.includes('air handler') || type.includes('boiler') || type.includes('exhaust fan')) {
+    return 'HVAC'
+  }
+  if (type.includes('refrigerat') || type.includes('freezer') || type.includes('cooler')) {
+    return 'Refrigeration'
+  }
+  if (type.includes('light') || type.includes('lamp')) {
+    return 'Lighting'
+  }
+  if (type.includes('electric') || type.includes('panel') || type.includes('breaker')) {
+    return 'Electrical'
+  }
+  return 'HVAC' // Default to HVAC for unknown types
+}
+
+const calculateInstallationDate = (lastServiceDate: string): string => {
+  const serviceDate = new Date(lastServiceDate)
+  // Estimate installation as 3-5 years before last service
+  const installationDate = new Date(serviceDate)
+  installationDate.setFullYear(installationDate.getFullYear() - Math.floor(Math.random() * 3) - 3)
+  return installationDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+const calculateAssetAge = (lastServiceDate: string): number => {
+  const serviceDate = new Date(lastServiceDate)
+  const now = new Date()
+  const ageInYears = Math.floor((now.getTime() - serviceDate.getTime()) / (1000 * 60 * 60 * 24 * 365))
+  return Math.max(1, ageInYears + Math.floor(Math.random() * 3) + 2) // Add some realistic age
+}
+
+const formatLastServiceDate = (lastServiceDate: string): string => {
+  const serviceDate = new Date(lastServiceDate)
+  const now = new Date()
+  const diffTime = Math.abs(now.getTime() - serviceDate.getTime())
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  return `${diffDays} days ago`
+}
+
+const formatServiceDateOnly = (lastServiceDate: string): string => {
+  const serviceDate = new Date(lastServiceDate)
+  return serviceDate.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })
+}
+
+const getConfidenceLevel = (averageInterval: number): 'High' | 'Medium' | 'Low' => {
+  if (averageInterval <= 6) return 'High'
+  if (averageInterval <= 12) return 'Medium'
+  return 'Low'
+}
+
+const generateReason = (equipmentType: string, manufacturer: string): string => {
+  const reasons = [
+    `Scheduled maintenance for ${manufacturer} ${equipmentType}. System requires inspection and preventive care.`,
+    `${equipmentType} showing signs of wear. Manufacturer ${manufacturer} recommends regular servicing.`,
+    `Preventive maintenance due for ${equipmentType}. Optimal performance requires scheduled service.`,
+    `${manufacturer} ${equipmentType} approaching service interval. Maintenance required to prevent issues.`
+  ]
+  return reasons[Math.floor(Math.random() * reasons.length)]
+}
+
+const calculateDaysUntilService = (lastServiceDate: string, averageInterval: number): number => {
+  const serviceDate = new Date(lastServiceDate)
+  const now = new Date()
+  const daysSinceService = Math.floor((now.getTime() - serviceDate.getTime()) / (1000 * 60 * 60 * 24))
+  const intervalInDays = Math.round(averageInterval * 30) // Convert months to days
+  return intervalInDays - daysSinceService
+}
+
+const getPriorityFromInterval = (averageInterval: number, lastServiceDate: string): 'High' | 'Medium' | 'Low' => {
+  const daysUntilService = calculateDaysUntilService(lastServiceDate, averageInterval)
+  if (daysUntilService < 0 || daysUntilService <= 15) return 'High'
+  if (daysUntilService <= 60) return 'Medium'
+  return 'Low'
 }
 
 interface AssetBundleGeneratorProps {
@@ -157,7 +253,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
 
     try {
       // Call the API
-      const response = await fetch('https://zgm8h6cl-3000.asse.devtunnels.ms111/bundles/generate', {
+      const response = await fetch('https://zgm8h6cl-3000.asse.devtunnels.ms/bundles/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,12 +264,51 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
       if (!response.ok) {
         throw new Error(`API call failed: ${response.status}`)
       }
-
-      const data = await response.json()
-      setBundleData(data)
+            console.log(response)
+      const apiData = await response.json()
+      console.log("apiData" ,apiData)
+      const text = apiData.result.text
+      console.log("raw text:", text)
+      
+      // Extract JSON from markdown code block format
+      const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/)
+      if (!jsonMatch) {
+        throw new Error('Could not extract JSON from API response')
+      }
+      
+      const jsonString = jsonMatch[1].trim()
+      console.log("extracted JSON string:", jsonString)
+      
+      // Parse the nested JSON data from result.text
+      const assetsData: ApiAssetData[] = JSON.parse(jsonString)
+      console.log("assetsData:", assetsData)
+      
+      // Transform API response to match our Asset interface
+      const transformedData: BundleOpportunity = {
+        location: "Sunset Ridge Apartments", // Default location since API doesn't provide this
+                  assets: assetsData.map((item: ApiAssetData) => ({
+            id: `ASSET-${item.LocationAssetId}`,
+            name: `${item.Manufacturer || 'Unknown'} ${item.EquipmentType}`,
+            type: getAssetTypeFromEquipment(item.EquipmentType),
+            location: "Sunset Ridge Apartments",
+            specificLocation: `Location ${item.LocationId} - Asset ${item.LocationAssetId}`,
+            installationDate: calculateInstallationDate(item.LastServiceDate),
+            assetAge: calculateAssetAge(item.LastServiceDate),
+            lastServiced: formatLastServiceDate(item.LastServiceDate),
+            lastServicedDate: formatServiceDateOnly(item.LastServiceDate),
+            typicalServiceInterval: Math.round(item.AverageInterval * 30), // Convert months to days
+            confidenceLevel: getConfidenceLevel(item.AverageInterval),
+            reason: generateReason(item.EquipmentType, item.Manufacturer || 'Unknown'),
+            daysUntilService: calculateDaysUntilService(item.LastServiceDate, item.AverageInterval),
+            priority: getPriorityFromInterval(item.AverageInterval, item.LastServiceDate)
+          })),
+        totalAssets: assetsData.length
+      }
+      console.log("transformedData", transformedData)
+      setBundleData(transformedData)
       
       // Auto-select high priority assets
-      const highPriorityAssets = data.assets
+      const highPriorityAssets = transformedData.assets
         ?.filter((asset: Asset) => asset.priority === 'High')
         ?.map((asset: Asset) => asset.id) || []
       setSelectedAssets(highPriorityAssets)
@@ -195,7 +330,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
   const toggleAssetSelection = (assetId: string) => {
     setSelectedAssets(prev => 
       prev.includes(assetId) 
-        ? prev.filter(id => id !== assetId)
+        ? prev?.filter(id => id !== assetId)
         : [...prev, assetId]
     )
   }
@@ -228,7 +363,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
     }
   }
 
-  const selectedAssetsData = bundleData?.assets.filter(asset => selectedAssets.includes(asset.id)) || []
+  const selectedAssetsData = bundleData?.assets?.filter(asset => selectedAssets.includes(asset.id)) || []
 
   const generateBundle = () => {
     if (selectedAssetsData.length === 0) {
@@ -351,67 +486,98 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
       )}
 
       {/* Work Order Input */}
-      <Card>
+      <Card sx={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        '& .MuiTypography-root': { color: 'white' }
+      }}>
         <CardContent>
-          <Typography level="h4" sx={{ mb: 2 }}>
-            Generate Bundle Suggestions
+          <Typography level="h4" sx={{ mb: 2, color: 'white', fontWeight: 'bold' }}>
+            🚀 Generate Bundle Suggestions
           </Typography>
           <Stack spacing={2}>
             <Stack direction="row" spacing={2} alignItems="flex-end">
               <Box sx={{ flex: 1 }}>
-                <Typography level="body-sm" sx={{ mb: 1 }}>
+                <Typography level="body-sm" sx={{ mb: 1, color: 'rgba(255,255,255,0.9)' }}>
                   Work Order ID
                 </Typography>
                 <Input
                   placeholder="Enter Work Order ID (e.g., 9815575)"
                   value={workOrderId}
                   onChange={(e) => setWorkOrderId(e.target.value)}
-                  startDecorator={<SearchIcon />}
+                  startDecorator={<SearchIcon sx={{ color: 'primary.main' }} />}
                   disabled={loading}
+                  sx={{
+                    bgcolor: 'rgba(255,255,255,0.95)',
+                    '&:focus-within': {
+                      bgcolor: 'white',
+                      boxShadow: '0 0 0 2px rgba(255,255,255,0.3)'
+                    }
+                  }}
                 />
               </Box>
               <Button
                 variant="solid"
+                color="warning"
+                size="lg"
                 startDecorator={loading ? undefined : <LightbulbIcon />}
                 onClick={handleGenerateBundle}
                 loading={loading}
                 disabled={!workOrderId.trim()}
+                sx={{
+                  background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+                  boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #FE6B8B 60%, #FF8E53 100%)',
+                    transform: 'translateY(-1px)'
+                  },
+                }}
               >
-                Generate bundle
+                Generate Bundle
               </Button>
             </Stack>
             
             {/* Suggested Work Order IDs */}
-            <Box>
-              <Typography level="body-xs" sx={{ mb: 1, color: 'text.secondary' }}>
-                🔍 Recent work orders with bundling opportunities:
+            <Box sx={{ 
+              bgcolor: 'rgba(255,255,255,0.1)', 
+              p: 2, 
+              borderRadius: 'md',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              <Typography level="body-xs" sx={{ mb: 2, color: 'rgba(255,255,255,0.9)', fontWeight: 'medium' }}>
+                ✨ Recent work orders with bundling opportunities:
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {[
-                  { id: '9815575', type: 'Rooftop HVAC Service', priority: 'High' },
-                  { id: '9798675', type: 'Electrical Panel Inspection', priority: 'Medium' },
-                  { id: '9814286', type: 'Appliance Maintenance', priority: 'High' }
+                  { id: '9815575', type: 'Air Conditioning/Heating->Making noise->Breakroom', priority: 'High', icon: '🔥' },
+                  { id: '9798675', type: 'Air Conditioning/Heating->Unit->Not Heating', priority: 'Medium', icon: '⚠️' },
+                  { id: '9814286', type: 'Air Conditioning/Heating->Unit->Not Heating', priority: 'High', icon: '🔥' }
                 ].map((suggestion) => (
                   <Chip
                     key={suggestion.id}
-                    size="sm"
-                    variant="outlined"
+                    size="md"
+                    variant="soft"
                     color={suggestion.priority === 'High' ? 'danger' : 'warning'}
                     onClick={() => setWorkOrderId(suggestion.id)}
                     sx={{ 
                       cursor: 'pointer',
+                      bgcolor: 'rgba(255,255,255,0.9)',
+                      color: suggestion.priority === 'High' ? 'danger.main' : 'warning.main',
+                      fontWeight: 'medium',
+                      transition: 'all 0.2s ease',
                       '&:hover': { 
-                        bgcolor: suggestion.priority === 'High' ? 'danger.softHoverBg' : 'warning.softHoverBg',
-                        borderColor: suggestion.priority === 'High' ? 'danger.main' : 'warning.main'
+                        bgcolor: 'white',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                       }
                     }}
                   >
-                    {suggestion.id} • {suggestion.type}
+                    {suggestion.icon} {suggestion.id} • {suggestion.type}
                   </Chip>
                 ))}
               </Stack>
-              <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary', fontStyle: 'italic' }}>
-                Click on a work order to check for bundling opportunities
+              <Typography level="body-xs" sx={{ mt: 2, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>
+                💡 Click on a work order to discover bundling opportunities
               </Typography>
             </Box>
           </Stack>
@@ -428,38 +594,63 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
       {bundleData && (
         <>
           {/* Bundle Overview */}
-          <Card>
+          <Card sx={{ 
+            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            color: 'white',
+            boxShadow: '0 8px 32px rgba(79, 172, 254, 0.3)'
+          }}>
             <CardContent>
-              <Typography level="h4" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <LocationIcon color="primary" />
-                Bundling Opportunity Detected
+              <Typography level="h4" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: 'white', fontWeight: 'bold' }}>
+                <LocationIcon sx={{ color: 'white' }} />
+                🎯 Bundling Opportunity Detected
               </Typography>
               
-              <Alert color="success" variant="soft" sx={{ mb: 3 }}>
-                <Typography level="body-sm" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Alert 
+                color="success" 
+                variant="soft" 
+                sx={{ 
+                  mb: 3,
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  '& .MuiAlert-startDecorator': { color: '#FFD700' }
+                }}
+              >
+                <Typography level="body-sm" sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'white' }}>
                   <LightbulbIcon sx={{ color: '#FFD700' }} />
-                  <strong>AI has identified {bundleData.totalAssets} assets</strong> in {bundleData.location} that are approaching their next service window.
+                  <strong>🤖 AI has identified {bundleData.totalAssets} assets</strong> in {bundleData.location} that are approaching their next service window.
                 </Typography>
               </Alert>
 
               <Grid container spacing={3}>
                 <Grid xs={12} sm={6} md={6}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2" sx={{ color: 'primary.main' }}>
+                  <Box sx={{ 
+                    textAlign: 'center',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                    p: 3,
+                    borderRadius: 'lg',
+                    border: '1px solid rgba(255,255,255,0.2)'
+                  }}>
+                    <Typography level="h1" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
                       {bundleData.totalAssets}
                     </Typography>
-                    <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
-                      Available Assets
+                    <Typography level="body-sm" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      📋 Available Assets
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid xs={12} sm={6} md={6}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography level="h2" sx={{ color: 'success.main' }}>
+                  <Box sx={{ 
+                    textAlign: 'center',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                    p: 3,
+                    borderRadius: 'lg',
+                    border: '1px solid rgba(255,255,255,0.2)'
+                  }}>
+                    <Typography level="h1" sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
                       {selectedAssets.length}
                     </Typography>
-                    <Typography level="body-sm" sx={{ color: 'text.secondary' }}>
-                      Selected Assets
+                    <Typography level="body-sm" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      ✅ Selected Assets
                     </Typography>
                   </Box>
                 </Grid>
@@ -468,16 +659,29 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
           </Card>
 
           {/* Asset Selection */}
-          <Card>
+          <Card sx={{ 
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(0,0,0,0.05)'
+          }}>
             <CardContent>
-              <Typography level="h4" sx={{ mb: 2 }}>
-                Select Assets for Bundling
+              <Typography level="h4" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                🎛️ Select Assets for Bundling
               </Typography>
               
               {selectedAssets.length > 0 && (
-                <Alert color="primary" variant="soft" sx={{ mb: 3 }}>
-                  <Typography level="body-sm">
-                    <strong>{selectedAssets.length} assets selected</strong> for bundling
+                <Alert 
+                  color="primary" 
+                  variant="soft" 
+                  sx={{ 
+                    mb: 3,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    border: 'none',
+                    '& .MuiAlert-startDecorator': { color: 'white' }
+                  }}
+                >
+                  <Typography level="body-sm" sx={{ color: 'white' }}>
+                    ✨ <strong>{selectedAssets.length} assets selected</strong> for bundling
                   </Typography>
                 </Alert>
               )}
@@ -493,9 +697,21 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                         variant={isSelected ? "outlined" : "soft"}
                         sx={{ 
                           cursor: 'pointer',
-                          border: isSelected ? '2px solid' : '1px solid',
+                          border: isSelected ? '3px solid' : '1px solid',
                           borderColor: isSelected ? 'primary.main' : 'divider',
-                          '&:hover': { borderColor: 'primary.main' }
+                          background: isSelected 
+                            ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)'
+                            : 'white',
+                          boxShadow: isSelected 
+                            ? '0 8px 25px rgba(102, 126, 234, 0.2)' 
+                            : '0 2px 8px rgba(0,0,0,0.1)',
+                          transform: isSelected ? 'translateY(-2px)' : 'none',
+                          transition: 'all 0.3s ease',
+                          '&:hover': { 
+                            borderColor: 'primary.main',
+                            transform: 'translateY(-4px)',
+                            boxShadow: '0 12px 30px rgba(102, 126, 234, 0.3)'
+                          }
                         }}
                         onClick={() => toggleAssetSelection(asset.id)}
                       >
@@ -525,16 +741,23 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                                 <Chip 
                                   size="sm" 
                                   color={getPriorityColor(asset.priority)} 
-                                  variant="soft"
+                                  variant="solid"
+                                  sx={{
+                                    fontWeight: 'bold',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                  }}
                                 >
-                                  {asset.priority}
+                                  {asset.priority === 'High' ? '🔥' : asset.priority === 'Medium' ? '⚠️' : '✅'} {asset.priority}
                                 </Chip>
                                 <Chip 
                                   size="sm" 
                                   color={getConfidenceColor(asset.confidenceLevel)} 
                                   variant="outlined"
+                                  sx={{
+                                    fontWeight: 'medium'
+                                  }}
                                 >
-                                  {asset.confidenceLevel} confidence
+                                  {asset.confidenceLevel === 'High' ? '🎯' : asset.confidenceLevel === 'Medium' ? '📊' : '📉'} {asset.confidenceLevel} confidence
                                 </Chip>
                               </Stack>
                             </Box>
@@ -546,9 +769,14 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                               borderRadius: 'sm' 
                             }}>
                               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                                <Typography level="body-sm" fontWeight="medium">
-                                  Last Serviced: {asset.lastServiced}
-                                </Typography>
+                                <Box>
+                                  <Typography level="body-sm" fontWeight="medium">
+                                    Last Serviced: {asset.lastServiced}
+                                  </Typography>
+                                  <Typography level="body-xs" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                                    {asset.lastServicedDate}
+                                  </Typography>
+                                </Box>
                                 <Typography level="body-sm" fontWeight="medium">
                                   {isOverdue ? (
                                     <Chip size="sm" color="danger" variant="solid" startDecorator={<WarningIcon />}>
@@ -561,12 +789,12 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                                   )}
                                 </Typography>
                               </Stack>
-                              <LinearProgress
+                              {/* <LinearProgress
                                 determinate
-                                value={Math.min(100, ((asset.typicalServiceInterval + asset.daysUntilService) / asset.typicalServiceInterval) * 100)}
+                                value={isOverdue ? 100 : Math.max(0, Math.min(100, ((asset.typicalServiceInterval - asset.daysUntilService) / asset.typicalServiceInterval) * 100))}
                                 color={isOverdue ? 'danger' : 'warning'}
                                 sx={{ height: 6 }}
-                              />
+                              /> */}
                             </Box>
 
                             {/* Asset Information */}
@@ -628,30 +856,57 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
 
           {/* Action Buttons */}
           {selectedAssets.length > 0 && (
-            <Card sx={{ bgcolor: 'primary.softBg' }}>
+            <Card sx={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+              border: 'none'
+            }}>
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Box>
-                    <Typography level="title-md" fontWeight="bold">
-                      Bundle Summary
+                    <Typography level="title-md" fontWeight="bold" sx={{ color: 'white', mb: 1 }}>
+                      📦 Bundle Summary
                     </Typography>
-                    <Typography level="body-sm">
-                      {selectedAssets.length} assets selected for bundling
+                    <Typography level="body-sm" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                      ✨ {selectedAssets.length} assets selected for bundling
                     </Typography>
-                    <Typography level="body-xs" sx={{ color: 'text.secondary', mt: 1 }}>
-                      This will create {selectedAssets.length} work orders and make the bundle available for dispatch
+                    <Typography level="body-xs" sx={{ color: 'rgba(255,255,255,0.7)', mt: 1 }}>
+                      🚀 This will create {selectedAssets.length} work orders and make the bundle available for dispatch
                     </Typography>
                   </Box>
                   <Stack direction="row" spacing={2}>
-                    <Button variant="outlined" onClick={() => setSelectedAssets([])}>
-                      Clear Selection
+                    <Button 
+                      variant="outlined" 
+                      onClick={() => setSelectedAssets([])}
+                      sx={{
+                        borderColor: 'rgba(255,255,255,0.5)',
+                        color: 'white',
+                        '&:hover': {
+                          borderColor: 'white',
+                          bgcolor: 'rgba(255,255,255,0.1)'
+                        }
+                      }}
+                    >
+                      🗑️ Clear Selection
                     </Button>
                     <Button 
-                      variant="solid" 
+                      variant="solid"
+                      size="lg"
                       startDecorator={<SendIcon />}
                       onClick={generateBundle}
+                      sx={{
+                        background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+                        boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #FE6B8B 60%, #FF8E53 100%)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 10px 4px rgba(255, 105, 135, .3)'
+                        }
+                      }}
                     >
-                      Add to Bundle ({selectedAssets.length})
+                      🎯 Generate Bundle ({selectedAssets.length})
                     </Button>
                   </Stack>
                 </Stack>
