@@ -6,7 +6,6 @@ import {
   Box,
   Chip,
   Button,
-  Alert,
   List,
   ListItem,
   ListItemContent,
@@ -150,12 +149,6 @@ export default function EscalationDecisions() {
           </Tooltip>
         </Typography>
 
-        <Alert color="warning" variant="soft" sx={{ mb: 3 }}>
-          <Typography level="body-sm">
-            <strong>2 maintenance issues</strong> require escalation consideration. AI has identified potential 
-            risks and recommended immediate actions to prevent property damage and ensure safety.
-          </Typography>
-        </Alert>
 
         <Stack spacing={3}>
           {mockEscalations.map((escalation) => (
