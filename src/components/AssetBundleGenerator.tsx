@@ -486,18 +486,18 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
 
       {/* Work Order Input */}
       <Card sx={{ 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        '& .MuiTypography-root': { color: 'white' }
+        bgcolor: 'white',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        border: '1px solid rgba(0,0,0,0.05)'
       }}>
         <CardContent>
-          <Typography level="h4" sx={{ mb: 2, color: 'white', fontWeight: 'bold' }}>
+          <Typography level="h4" sx={{ mb: 2, color: 'text.primary', fontWeight: 'bold' }}>
             🚀 Generate Bundle Suggestions
           </Typography>
           <Stack spacing={2}>
             <Stack direction="row" spacing={2} alignItems="flex-end">
               <Box sx={{ flex: 1 }}>
-                <Typography level="body-sm" sx={{ mb: 1, color: 'rgba(255,255,255,0.9)' }}>
+                <Typography level="body-sm" sx={{ mb: 1, color: 'text.secondary' }}>
                   Work Order ID
                 </Typography>
                 <Input
@@ -506,13 +506,6 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                   onChange={(e) => setWorkOrderId(e.target.value)}
                   startDecorator={<SearchIcon sx={{ color: 'primary.main' }} />}
                   disabled={loading}
-                  sx={{
-                    bgcolor: 'rgba(255,255,255,0.95)',
-                    '&:focus-within': {
-                      bgcolor: 'white',
-                      boxShadow: '0 0 0 2px rgba(255,255,255,0.3)'
-                    }
-                  }}
                 />
               </Box>
               <Button
@@ -538,12 +531,13 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
             
             {/* Suggested Work Order IDs */}
             <Box sx={{ 
-              bgcolor: 'rgba(255,255,255,0.1)', 
+              bgcolor: 'neutral.softBg', 
               p: 2, 
               borderRadius: 'md',
-              border: '1px solid rgba(255,255,255,0.2)'
+              border: '1px solid',
+              borderColor: 'neutral.outlinedBorder'
             }}>
-              <Typography level="body-xs" sx={{ mb: 2, color: 'rgba(255,255,255,0.9)', fontWeight: 'medium' }}>
+              <Typography level="body-xs" sx={{ mb: 2, color: 'text.primary', fontWeight: 'medium' }}>
                 ✨ Recent work orders with bundling opportunities:
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -560,12 +554,9 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                     onClick={() => setWorkOrderId(suggestion.id)}
                     sx={{ 
                       cursor: 'pointer',
-                      bgcolor: 'rgba(255,255,255,0.9)',
-                      color: suggestion.priority === 'High' ? 'danger.main' : 'warning.main',
                       fontWeight: 'medium',
                       transition: 'all 0.2s ease',
                       '&:hover': { 
-                        bgcolor: 'white',
                         transform: 'translateY(-1px)',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                       }
@@ -575,7 +566,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                   </Chip>
                 ))}
               </Stack>
-              <Typography level="body-xs" sx={{ mt: 2, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>
+              <Typography level="body-xs" sx={{ mt: 2, color: 'text.secondary', fontStyle: 'italic' }}>
                 💡 Click on a work order to discover bundling opportunities
               </Typography>
             </Box>
@@ -594,14 +585,14 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
         <>
           {/* Bundle Overview */}
           <Card sx={{ 
-            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            background: 'linear-gradient(135deg,rgb(33, 140, 234) 0%,rgb(25, 193, 201) 100%)',
             color: 'white',
             boxShadow: '0 8px 32px rgba(79, 172, 254, 0.3)'
           }}>
             <CardContent>
               <Typography level="h4" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, color: 'white', fontWeight: 'bold' }}>
                 <LocationIcon sx={{ color: 'white' }} />
-                🎯 Bundling Opportunity Detected
+                Bundling Opportunity Detected
               </Typography>
               
               <Alert 
@@ -645,7 +636,7 @@ export default function AssetBundleGenerator({ onBundleCreated }: AssetBundleGen
                     borderRadius: 'lg',
                     border: '1px solid rgba(255,255,255,0.2)'
                   }}>
-                    <Typography level="h1" sx={{ color: '#FFD700', fontWeight: 'bold', mb: 1 }}>
+                    <Typography level="h1" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
                       {selectedAssets.length}
                     </Typography>
                     <Typography level="body-sm" sx={{ color: 'rgba(255,255,255,0.8)' }}>
