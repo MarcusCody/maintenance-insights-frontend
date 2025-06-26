@@ -76,7 +76,7 @@ const aiInsights = [
 ]
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('bundling')
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
@@ -102,7 +102,32 @@ function App() {
         </Box>
 
         <Stack spacing={1}>
+         
+          {/* <Button
+            variant={activeTab === 'dispatch' ? 'solid' : 'plain'}
+            startDecorator={<SendIcon />}
+            onClick={() => setActiveTab('dispatch')}
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Dispatch
+          </Button> */}
           <Button
+            variant={activeTab === 'bundling' ? 'solid' : 'plain'}
+            startDecorator={<GroupIcon />}
+            onClick={() => setActiveTab('bundling')}
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Bundling
+          </Button>
+          <Button
+            variant={activeTab === 'bundle-dispatch' ? 'solid' : 'plain'}
+            startDecorator={<SendIcon />}
+            onClick={() => setActiveTab('bundle-dispatch')}
+            sx={{ justifyContent: 'flex-start' }}
+          >
+            Bundle Dispatch
+          </Button>
+          {/* <Button
             variant={activeTab === 'dashboard' ? 'solid' : 'plain'}
             startDecorator={<DashboardIcon />}
             onClick={() => setActiveTab('dashboard')}
@@ -133,31 +158,7 @@ function App() {
             sx={{ justifyContent: 'flex-start' }}
           >
             Analytics
-          </Button>
-          {/* <Button
-            variant={activeTab === 'dispatch' ? 'solid' : 'plain'}
-            startDecorator={<SendIcon />}
-            onClick={() => setActiveTab('dispatch')}
-            sx={{ justifyContent: 'flex-start' }}
-          >
-            Dispatch
           </Button> */}
-          <Button
-            variant={activeTab === 'bundling' ? 'solid' : 'plain'}
-            startDecorator={<GroupIcon />}
-            onClick={() => setActiveTab('bundling')}
-            sx={{ justifyContent: 'flex-start' }}
-          >
-            Bundling
-          </Button>
-          <Button
-            variant={activeTab === 'bundle-dispatch' ? 'solid' : 'plain'}
-            startDecorator={<SendIcon />}
-            onClick={() => setActiveTab('bundle-dispatch')}
-            sx={{ justifyContent: 'flex-start' }}
-          >
-            Bundle Dispatch
-          </Button>
         </Stack>
 
         <Box sx={{ mt: 'auto', pt: 2 }}>
