@@ -30,7 +30,6 @@ import PropertiesManagement from './components/PropertiesManagement'
 import MaintenanceManagement from './components/MaintenanceManagement'
 import BundleDispatch from './components/BundleDispatch'
 import {
-  Dashboard as DashboardIcon,
   Build as BuildIcon,
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
@@ -39,7 +38,6 @@ import {
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
   Person as PersonIcon,
-  Analytics as AnalyticsIcon,
   AutoFixHigh as AutoFixHighIcon,
   Add as AddIcon,
   Send as SendIcon,
