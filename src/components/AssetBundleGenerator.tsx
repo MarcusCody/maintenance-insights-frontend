@@ -12,7 +12,6 @@ import {
   Grid,
   Checkbox,
   Avatar,
-  LinearProgress,
 } from '@mui/joy'
 import {
   Search as SearchIcon,
